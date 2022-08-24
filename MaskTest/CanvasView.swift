@@ -19,7 +19,8 @@ class CanvaView: UIView {
         
         self.backgroundColor = .white
         
-        drawCheckerBoard()
+        //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
+        layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
         
         self.image = UIImage(named: "tiger")
         
@@ -27,6 +28,20 @@ class CanvaView: UIView {
         let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
         //drawMask(at: pos)
         drawMask_With_CIImage(at: pos)
+    }
+    
+    // Whenver we call layer.setNeedsDisplay(), this is called
+    override func draw(_ layer: CALayer, in ctx: CGContext) {
+        
+        ctx.setFillColor(UIColor.black.cgColor)
+        
+        for row in 0 ..< 10 {
+            for col in 0 ..< 10 {
+                if (row + col) % 2 == 0 {
+                    ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                }
+            }
+        }
     }
     
     /*
@@ -179,6 +194,16 @@ class CanvaView: UIView {
             
             //self.subviews.forEach { $0.removeFromSuperview() }
             self.addSubview(view)
+        }
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        guard let touch: UITouch = touches.first else { return }
+        
+        let pos = touch.location(in: self)
+        if let foundView = self.viewWithTag(0xDEADBEEF) {
+            foundView.center = pos
         }
     }
     
