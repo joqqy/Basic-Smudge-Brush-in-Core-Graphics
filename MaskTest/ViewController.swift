@@ -19,7 +19,7 @@ class ViewController: UIViewController {
         //self.view.backgroundColor = .white
         
         self.canvas = CanvaView(frame: self.view.frame)
-        if let view = self.canvas {
+        if let view: CanvaView = self.canvas {
             self.view.addSubview(view)
         }
     }

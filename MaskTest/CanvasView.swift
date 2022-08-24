@@ -18,7 +18,8 @@ class CanvaView: UIView {
         
         self.image = UIImage(named: "tiger")
         
-        drawMask()
+        drawMask(at: CGPoint(x: self.center.x,
+                             y: self.center.y))
     }
     
     // Overriding draw
@@ -57,8 +58,10 @@ class CanvaView: UIView {
 //        }
 //    }
     
-    // We can do this as well
-    func drawMask() {
+    /// We can do this as well
+    /// - Parameters:
+    ///     - pos: Position of the UIImageView
+    func drawMask(at pos: CGPoint) {
         
         if let cg: CGImage = self.image?.cgImage,
            let size: CGSize = self.image?.size {
@@ -92,6 +95,8 @@ class CanvaView: UIView {
             self.image = img
             
             let view = UIImageView(image: self.image)
+            view.center = pos
+            
             self.subviews.forEach { $0.removeFromSuperview() }
             self.addSubview(view)
         }
