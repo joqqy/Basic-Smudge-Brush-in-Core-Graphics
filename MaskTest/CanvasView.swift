@@ -20,7 +20,7 @@ class CanvaView: UIView {
         
         let pos = CGPoint(x: self.center.x, y: self.center.y)
         
-//        drawMask(at: pos)
+        //drawMask(at: pos)
         drawMask_With_CIImage(at: pos)
     }
     
@@ -64,7 +64,6 @@ class CanvaView: UIView {
         }
     }
     */
-    
     
     /// We can do this as well
     /// - Parameters:
@@ -122,7 +121,7 @@ class CanvaView: UIView {
         if let cg: CGImage = self.image?.cgImage,
            let size: CGSize = self.image?.size {
             
-            // Create a brush CIFilter radial gradient
+            // Create a brush CIFilter radial gradient, we will use this as a mask
             let brushFilter: CIFilter? = CIFilter(name: "CIRadialGradient",
                                                   parameters:
                                                    [kCIInputCenterKey : CIVector(x: size.width/2,
