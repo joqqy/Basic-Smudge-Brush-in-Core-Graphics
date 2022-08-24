@@ -74,11 +74,11 @@ class CanvaView: UIView {
         if let cg: CGImage = self.image?.cgImage,
            let size: CGSize = self.image?.size {
             
-            let renderer = UIGraphicsImageRenderer(size: size)
+            let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
             
-            let img = renderer.image { ctx in
+            let img: UIImage = renderer.image { ctx in
                 
-                if let mask = UIImage(named: "tigermask_1_S")?.cgImage {
+                if let mask: CGImage = UIImage(named: "tigermask_1_S")?.cgImage {
                     if let masked: CGImage = cg.masking(mask) {
                         
                         // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
@@ -105,7 +105,7 @@ class CanvaView: UIView {
             
             self.image = img
             
-            let view = UIImageView(image: self.image)
+            let view: UIImageView = UIImageView(image: self.image)
             view.center = pos
             
             self.subviews.forEach { $0.removeFromSuperview() }
@@ -143,9 +143,8 @@ class CanvaView: UIView {
                 
                 if let input: CIImage = brushImage,
                    let mask: CGImage = self.ciContex.createCGImage(input, from: input.extent, format: .ABGR8, colorSpace: nil/*CGColorSpace(name: CGColorSpace.linearSRGB)*/),
-                   let maskConvert = convertToGrayScale(image: UIImage(cgImage: mask)), // Unless we convert the cgImage that we retreive from CIImage, it doesn't work, that is why we do this
+                   let maskConvert = ImageTools.convertToGrayScale(image: UIImage(cgImage: mask)), // Unless we convert the cgImage that we retreive from CIImage, it doesn't work, that is why we do this
                    let masked: CGImage = cg.masking(maskConvert) {
-                    
 
                     // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
                     // So no need to realese the mask in Swift, it is all handled by ARC
@@ -177,59 +176,5 @@ class CanvaView: UIView {
             self.subviews.forEach { $0.removeFromSuperview() }
             self.addSubview(view)
         }
-    }
-}
-
-extension CanvaView {
-    
-    /// Converts an UIImage to grayscale and returns a cgImage
-    /// We need this if we want to use the image as a mask, since the mask needs to be in DeviceGray color space
-    /// This will create a DeviceGray or kCGColorSpaceModelMonochrome color space
-    func convertToGrayScale(image: UIImage) -> CGImage? {
-        
-        // Geometry
-        let imageRect: CGRect = CGRect(origin: CGPoint.zero, size: image.size)
-        
-        // Image settings
-        let colorSpace = CGColorSpaceCreateDeviceGray()
-        let bitmapInfo: CGBitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue)
-        let context: CGContext? = CGContext(data: nil,
-                                            width: Int(imageRect.width),
-                                            height: Int(imageRect.height),
-                                            bitsPerComponent: 8,
-                                            bytesPerRow: 0,
-                                            space: colorSpace,
-                                            bitmapInfo: bitmapInfo.rawValue)
-        
-        // Draw the image into the context
-        context?.draw(image.cgImage!, in: imageRect)
-        
-        // Grab the image from the context
-        let imageRef: CGImage? = context!.makeImage()
-        
-        // If we want to get it backas an uiimage
-        //let newImage = UIImage(cgImage: imageRef)
-        
-        return imageRef
-    }
-    
-    /// Warning, while this will create a gray image, IT WILL NOT CREATE DeviceGray color.
-    /// Result of this is kCGColorSpaceDeviceRGB
-    func ciConvertToGrayScale(image: UIImage, imageStyle: String) -> UIImage? {
-        
-        let currentFilter = CIFilter(name: imageStyle)
-        
-        if let filter: CIFilter = currentFilter {
-            
-            filter.setValue(CIImage(image: image), forKey: kCIInputImageKey)
-            
-            if let output: CIImage = filter.outputImage,
-               let cgImg: CGImage = context.createCGImage(output, from: output.extent) {
-                
-                let processedImage: UIImage = UIImage(cgImage: cgImg)
-                return processedImage
-            }
-        }
-        return nil
     }
 }
