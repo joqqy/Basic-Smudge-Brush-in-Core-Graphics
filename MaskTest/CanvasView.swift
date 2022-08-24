@@ -18,14 +18,14 @@ class CanvaView: UIView {
         
         self.image = UIImage(named: "tiger")
         
-        let pos = CGPoint(x: self.center.x, y: self.center.y)
-        
+        // To position the UIImageView if we use it
+        let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
         //drawMask(at: pos)
         drawMask_With_CIImage(at: pos)
     }
     
     /*
-    // Overriding draw
+    // Overriding draw(rect:)
     override func draw(_ rect: CGRect) {
 
         if let ctx: CGContext = UIGraphicsGetCurrentContext() {
@@ -164,8 +164,7 @@ class CanvaView: UIView {
                     // Restore context state
                     ctx.cgContext.restoreGState()
                 }
-            }
-            
+            }            
             
             self.image = img
             
