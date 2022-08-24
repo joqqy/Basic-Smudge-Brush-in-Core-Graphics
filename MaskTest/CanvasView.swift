@@ -28,7 +28,7 @@ class CanvaView: UIView {
         
         // To position the UIImageView if we use it
         let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
-        drawMask(at: pos)
+        //drawMask(at: pos)
         //drawMask_With_CIImage(at: pos)
     }
     
@@ -120,10 +120,10 @@ class CanvaView: UIView {
                     
                     let rect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
 //                    let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
-                    let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context
+                    let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, nothing draws, it is empty???? does it really copy the current context?
 
                     if let cgCopy: CGImage = cgCopy,
-                       let mask = UIImage(named: "tigermask_1_S")?.cgImage {
+                       let mask: CGImage = UIImage(named: "tigermask_1_S")?.cgImage {
                         
                         if let masked: CGImage = cgCopy.masking(mask) {
                             
@@ -145,7 +145,7 @@ class CanvaView: UIView {
                             // Draw
                             ctx.setAlpha(1.0)
                             ctx.setBlendMode(.normal)
-                            ctx.draw(masked, in: rect)
+                            ctx.draw(cg, in: rect)
 
                             // Restore context state
                             ctx.restoreGState()

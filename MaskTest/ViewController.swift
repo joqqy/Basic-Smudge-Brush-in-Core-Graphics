@@ -17,7 +17,8 @@ class ViewController: UIViewController {
         
         if let canvas = canvas {
             canvas.toolSegmentIndex = sender.selectedSegmentIndex
-            canvas.setNeedsDisplay()
+            //canvas.setNeedsDisplay()
+            canvas.layer.setNeedsDisplay()
         }
     }
     
