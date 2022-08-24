@@ -20,7 +20,7 @@ class CanvaView: UIView {
         self.backgroundColor = .white
         
         //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
-        layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
+        //layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
         
         self.image = UIImage(named: "tiger")
         
@@ -31,6 +31,8 @@ class CanvaView: UIView {
     }
     
     // Whenver we call layer.setNeedsDisplay(), this is called
+    // This is part of the CALayerDelegate
+    /*
     override func draw(_ layer: CALayer, in ctx: CGContext) {
         
         ctx.setFillColor(UIColor.black.cgColor)
@@ -43,6 +45,7 @@ class CanvaView: UIView {
             }
         }
     }
+     */
     
     /*
     // Overriding draw(rect:)
@@ -84,6 +87,22 @@ class CanvaView: UIView {
         }
     }
     */
+    
+    override func draw(_ rect: CGRect) {
+        
+        if let ctx = UIGraphicsGetCurrentContext() {
+            
+            ctx.setFillColor(UIColor.black.cgColor)
+            
+            for row in 0 ..< 10 {
+                for col in 0 ..< 10 {
+                    if (row + col) % 2 == 0 {
+                        ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                    }
+                }
+            }
+        }
+    }
     
     /// We can do this as well
     /// - Parameters:
