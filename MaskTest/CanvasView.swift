@@ -142,27 +142,27 @@ class CanvaView: UIView {
                 brushImage = brushImage?.cropped(to: CGRect(x: 0, y: 0, width: size.width, height: size.height))
                 
                 if let input: CIImage = brushImage,
-                   let mask: CGImage = self.ciContex.createCGImage(input, from: input.extent), // FIXME: Why does this fail?
-                   let masked: CGImage = cg.masking(mask) {
+                   let mask: CGImage = self.ciContex.createCGImage(input, from: input.extent, format: .ABGR8, colorSpace: nil/*CGColorSpace(name: CGColorSpace.linearSRGB)*/),
+                   let maskConvert = convertToGrayScale(image: UIImage(cgImage: mask)), // Unless we convert the cgImage that we retreive from CIImage, it doesn't work, that is why we do this
+                   let masked: CGImage = cg.masking(maskConvert) {
                     
-                    print("hello")
-                        
+
                     // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
                     // So no need to realese the mask in Swift, it is all handled by ARC
-                        
+
                     let rect: CGRect = CGRect(origin: .zero, size: size)
-         
+
                     // Save context state
                     ctx.cgContext.saveGState()
-                        
+
                     // Flip the context so that the coordinates match the default coordinate system of UIKit
                     // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
                     ctx.cgContext.translateBy(x: 0, y: size.width)
                     ctx.cgContext.scaleBy(x: 1, y: -1)
-                        
+
                     // Draw
                     ctx.cgContext.draw(masked, in: rect)
-                        
+
                     // Restore context state
                     ctx.cgContext.restoreGState()
                 }
@@ -177,5 +177,39 @@ class CanvaView: UIView {
             self.subviews.forEach { $0.removeFromSuperview() }
             self.addSubview(view)
         }
+    }
+}
+
+extension CanvaView {
+    
+    /// Converts an UIImage to grayscale and returns a cgImage
+    /// We need this if we want to use the image as a mask, since the mask needs to be in DeviceGray color space
+    /// This will create a DeviceGray or kCGColorSpaceModelMonochrome color space
+    func convertToGrayScale(image: UIImage) -> CGImage? {
+        
+        // Geometry
+        let imageRect: CGRect = CGRect(origin: CGPoint.zero, size: image.size)
+        
+        // Image settings
+        let colorSpace = CGColorSpaceCreateDeviceGray()
+        let bitmapInfo: CGBitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue)
+        let context: CGContext? = CGContext(data: nil,
+                                            width: Int(imageRect.width),
+                                            height: Int(imageRect.height),
+                                            bitsPerComponent: 8,
+                                            bytesPerRow: 0,
+                                            space: colorSpace,
+                                            bitmapInfo: bitmapInfo.rawValue)
+        
+        // Draw the image into the context
+        context?.draw(image.cgImage!, in: imageRect)
+        
+        // Grab the image from the context
+        let imageRef: CGImage? = context!.makeImage()
+        
+        // If we want to get it backas an uiimage
+        //let newImage = UIImage(cgImage: imageRef)
+        
+        return imageRef
     }
 }
