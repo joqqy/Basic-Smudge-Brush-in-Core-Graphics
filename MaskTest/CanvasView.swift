@@ -199,7 +199,7 @@ extension CanvaView {
         
         let renderer = UIGraphicsImageRenderer(size: self.bounds.size)
         
-        let img = renderer.image { ctx in
+        let img: UIImage = renderer.image { ctx in
             
             ctx.cgContext.setFillColor(UIColor.black.cgColor)
             
