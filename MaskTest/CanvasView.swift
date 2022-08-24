@@ -10,6 +10,9 @@ import UIKit
 
 class CanvaView: UIView {
     
+    /// Will receive continues pixel data from CanvasView backing layer
+    var imageView: UIImageView!
+    
     var image: UIImage?
     
     override func didMoveToSuperview() {
@@ -209,9 +212,8 @@ extension CanvaView {
             }
         }
         
-        let view: UIImageView = UIImageView(frame: self.bounds)
-        view.image = img
-        view.tag = 1
-        self.addSubview(view)
+        self.imageView = UIImageView(frame: self.bounds)
+        self.imageView.image = img
+        self.addSubview(self.imageView)
     }
 }
