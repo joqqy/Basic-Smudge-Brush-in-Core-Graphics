@@ -13,6 +13,7 @@
 		E276217428B68B290015F553 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E276217228B68B290015F553 /* Main.storyboard */; };
 		E276217628B68B550015F553 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E276217528B68B550015F553 /* Assets.xcassets */; };
 		E276217928B68B550015F553 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E276217728B68B550015F553 /* LaunchScreen.storyboard */; };
+		E2EF027828B6982A002398E6 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EF027728B6982A002398E6 /* CanvasView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		E276217528B68B550015F553 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E276217828B68B550015F553 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E276217A28B68B550015F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2EF027728B6982A002398E6 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 				E276216C28B68B290015F553 /* AppDelegate.swift */,
 				E276216E28B68B290015F553 /* SceneDelegate.swift */,
 				E276217028B68B290015F553 /* ViewController.swift */,
+				E2EF027728B6982A002398E6 /* CanvasView.swift */,
 				E276217228B68B290015F553 /* Main.storyboard */,
 				E276217528B68B550015F553 /* Assets.xcassets */,
 				E276217728B68B550015F553 /* LaunchScreen.storyboard */,
@@ -140,6 +143,7 @@
 			files = (
 				E276217128B68B290015F553 /* ViewController.swift in Sources */,
 				E276216D28B68B290015F553 /* AppDelegate.swift in Sources */,
+				E2EF027828B6982A002398E6 /* CanvasView.swift in Sources */,
 				E276216F28B68B290015F553 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
