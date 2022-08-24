@@ -120,12 +120,12 @@ class CanvaView: UIView {
                     
                     let rect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
 //                    let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
-                    let cgCopy = ctx.makeImage()?.cropping(to: rect) // This works
+                    let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context
 
-                    if let cgCopy: CGImage = cgCopy, // FIXME: This fails, why?
-                       let mask = UIImage(named: "tigermask_1_S")?.cgImage { //} UIImage(named: "tigermask_1_S")?.cgImage {
+                    if let cgCopy: CGImage = cgCopy,
+                       let mask = UIImage(named: "tigermask_1_S")?.cgImage {
                         
-                        if let masked = cgCopy.masking(mask) {
+                        if let masked: CGImage = cgCopy.masking(mask) {
                             
                             print("hello")
                             
@@ -143,6 +143,8 @@ class CanvaView: UIView {
                             ctx.scaleBy(x: 1, y: -1)
 
                             // Draw
+                            ctx.setAlpha(1.0)
+                            ctx.setBlendMode(.normal)
                             ctx.draw(masked, in: rect)
 
                             // Restore context state
