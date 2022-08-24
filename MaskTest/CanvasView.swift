@@ -28,8 +28,8 @@ class CanvaView: UIView {
         
         // To position the UIImageView if we use it
         let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
-        //drawMask(at: pos)
-        drawMask_With_CIImage(at: pos)
+        drawMask(at: pos)
+        //drawMask_With_CIImage(at: pos)
     }
     
     // Whenver we call layer.setNeedsDisplay(), this is called
@@ -117,11 +117,15 @@ class CanvaView: UIView {
                     // If the mas is a mask, white areas are transparent and black areas opaque.
                     // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
                     
+                    
                     let rect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-                    let copy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect)
+//                    let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
+                    let cgCopy = ctx.makeImage()?.cropping(to: rect) // This works
 
-                    if let mask = copy { //} UIImage(named: "tigermask_1_S")?.cgImage {
-                        if let masked = cg.masking(mask) {
+                    if let cgCopy: CGImage = cgCopy, // FIXME: This fails, why?
+                       let mask = UIImage(named: "tigermask_1_S")?.cgImage { //} UIImage(named: "tigermask_1_S")?.cgImage {
+                        
+                        if let masked = cgCopy.masking(mask) {
                             
                             print("hello")
                             
@@ -213,6 +217,7 @@ class CanvaView: UIView {
             self.image = img
             
             let view: UIImageView = UIImageView(image: self.image)
+            view.tag = 0xDEADBEEF
             view.center = pos
             
             self.subviews.forEach { $0.removeFromSuperview() }
