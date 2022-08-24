@@ -16,6 +16,8 @@ class CanvaView: UIView {
         
         self.backgroundColor = .white
         
+        drawCheckerBoard()
+        
         self.image = UIImage(named: "tiger")
         
         // To position the UIImageView if we use it
@@ -169,9 +171,10 @@ class CanvaView: UIView {
             self.image = img
             
             let view: UIImageView = UIImageView(image: self.image)
+            view.tag = 0xDEADBEEF
             view.center = pos
             
-            self.subviews.forEach { $0.removeFromSuperview() }
+            //self.subviews.forEach { $0.removeFromSuperview() }
             self.addSubview(view)
         }
     }
@@ -181,8 +184,34 @@ class CanvaView: UIView {
         guard let touch: UITouch = touches.first else { return }
         
         let pos = touch.location(in: self)
-        for sub in self.subviews {
-            sub.center = pos
+        if let foundView = self.viewWithTag(0xDEADBEEF) {
+            foundView.center = pos
         }
+    }
+}
+
+extension CanvaView {
+    
+    func drawCheckerBoard() {
+        
+        let renderer = UIGraphicsImageRenderer(size: self.bounds.size)
+        
+        let img = renderer.image { ctx in
+            
+            ctx.cgContext.setFillColor(UIColor.black.cgColor)
+            
+            for row in 0 ..< 10 {
+                for col in 0 ..< 10 {
+                    if (row + col) % 2 == 0 {
+                        ctx.cgContext.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                    }
+                }
+            }
+        }
+        
+        let view: UIImageView = UIImageView(frame: self.bounds)
+        view.image = img
+        view.tag = 1
+        self.addSubview(view)
     }
 }
