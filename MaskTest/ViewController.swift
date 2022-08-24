@@ -11,8 +11,8 @@ class CanvaView: UIView {
     
     var image: UIImage?
     
+    
     override func didMoveToSuperview() {
-        
         self.image = UIImage(named: "tiger")
     }
     
@@ -20,8 +20,8 @@ class CanvaView: UIView {
         
         if let ctx: CGContext = UIGraphicsGetCurrentContext() {
             
-            if let cg = self.image?.cgImage,
-               let size = self.image?.size {
+            if let cg: CGImage = self.image?.cgImage,
+               let size: CGSize = self.image?.size {
                 
                 // If the mask is an image, then white areas are opaque, and black areas are transparent
                 // If the mas is a mask, white areas are transparent and black areas opaque.
@@ -30,7 +30,7 @@ class CanvaView: UIView {
                 if let mask = UIImage(named: "tigermask_1_S")?.cgImage {
                     if let masked = cg.masking(mask) {
                         
-                        let rect = CGRect(origin: .zero, size: size)
+                        let rect: CGRect = CGRect(origin: .zero, size: size)
                         
                         // Save context state
                         ctx.saveGState()
