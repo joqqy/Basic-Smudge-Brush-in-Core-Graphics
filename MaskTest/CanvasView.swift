@@ -18,8 +18,10 @@ class CanvaView: UIView {
         
         self.image = UIImage(named: "tiger")
         
-        drawMask(at: CGPoint(x: self.center.x,
-                             y: self.center.y))
+        let pos = CGPoint(x: self.center.x, y: self.center.y)
+        
+//        drawMask(at: pos)
+        drawMask_With_CIImage(at: pos)
     }
     
     /*
@@ -100,6 +102,72 @@ class CanvaView: UIView {
                     }
                 }
             }
+            
+            self.image = img
+            
+            let view = UIImageView(image: self.image)
+            view.center = pos
+            
+            self.subviews.forEach { $0.removeFromSuperview() }
+            self.addSubview(view)
+        }
+    }
+    
+    let ciContex = CIContext(options: [CIContextOption.useSoftwareRenderer : false])
+    /// We can do this as well
+    /// - Parameters:
+    ///     - pos: Position of the UIImageView
+    func drawMask_With_CIImage(at pos: CGPoint) {
+        
+        if let cg: CGImage = self.image?.cgImage,
+           let size: CGSize = self.image?.size {
+            
+            // Create a brush CIFilter radial gradient
+            let brushFilter: CIFilter? = CIFilter(name: "CIRadialGradient",
+                                                  parameters:
+                                                   [kCIInputCenterKey : CIVector(x: size.width/2,
+                                                                                 y: size.height/2),
+                                                    "inputRadius0" : 0,
+                                                    "inputRadius1" : size.width/2,
+                                                    "inputColor0" : CIColor(red: 1, green: 1, blue: 1, alpha: 1.0),
+                                                    "inputColor1" : CIColor(red: 0, green: 0, blue: 0, alpha: 1.0)])
+            
+            let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
+            
+            let img: UIImage = renderer.image { ctx in
+                
+                // Fetch the CIImage from the brush filter
+                var brushImage: CIImage? = brushFilter?.outputImage
+                // Crop the CIImage to desired size
+                brushImage = brushImage?.cropped(to: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+                
+                if let input: CIImage = brushImage,
+                   let mask: CGImage = self.ciContex.createCGImage(input, from: input.extent), // FIXME: Why does this fail?
+                   let masked: CGImage = cg.masking(mask) {
+                    
+                    print("hello")
+                        
+                    // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
+                    // So no need to realese the mask in Swift, it is all handled by ARC
+                        
+                    let rect: CGRect = CGRect(origin: .zero, size: size)
+         
+                    // Save context state
+                    ctx.cgContext.saveGState()
+                        
+                    // Flip the context so that the coordinates match the default coordinate system of UIKit
+                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+                    ctx.cgContext.translateBy(x: 0, y: size.width)
+                    ctx.cgContext.scaleBy(x: 1, y: -1)
+                        
+                    // Draw
+                    ctx.cgContext.draw(masked, in: rect)
+                        
+                    // Restore context state
+                    ctx.cgContext.restoreGState()
+                }
+            }
+            
             
             self.image = img
             
