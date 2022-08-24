@@ -212,4 +212,24 @@ extension CanvaView {
         
         return imageRef
     }
+    
+    /// Warning, while this will create a gray image, IT WILL NOT CREATE DeviceGray color.
+    /// Result of this is kCGColorSpaceDeviceRGB
+    func ciConvertToGrayScale(image: UIImage, imageStyle: String) -> UIImage? {
+        
+        let currentFilter = CIFilter(name: imageStyle)
+        
+        if let filter: CIFilter = currentFilter {
+            
+            filter.setValue(CIImage(image: image), forKey: kCIInputImageKey)
+            
+            if let output: CIImage = filter.outputImage,
+               let cgImg: CGImage = context.createCGImage(output, from: output.extent) {
+                
+                let processedImage: UIImage = UIImage(cgImage: cgImg)
+                return processedImage
+            }
+        }
+        return nil
+    }
 }
