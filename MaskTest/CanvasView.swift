@@ -164,11 +164,11 @@ class CanvaView: UIView {
                     // Restore context state
                     ctx.cgContext.restoreGState()
                 }
-            }            
+            }
             
             self.image = img
             
-            let view = UIImageView(image: self.image)
+            let view: UIImageView = UIImageView(image: self.image)
             view.center = pos
             
             self.subviews.forEach { $0.removeFromSuperview() }
