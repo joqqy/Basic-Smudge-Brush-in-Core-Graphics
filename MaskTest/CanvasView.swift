@@ -175,4 +175,14 @@ class CanvaView: UIView {
             self.addSubview(view)
         }
     }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        guard let touch = touches.first else { return }
+        
+        let pos = touch.location(in: self)
+        for sub in self.subviews {
+            sub.center = pos
+        }        
+    }
 }
