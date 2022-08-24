@@ -63,7 +63,7 @@ struct ImageTools {
     
     static func renderAsUIImage(_ image: CIImage, context: CIContext) -> UIImage? {
         
-        if let cgImage = context.createCGImage(image, from: image.extent) {
+        if let cgImage: CGImage = context.createCGImage(image, from: image.extent) {
             return UIImage(cgImage: cgImage)
         }
         return nil
