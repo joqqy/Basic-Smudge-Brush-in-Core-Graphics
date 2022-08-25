@@ -99,6 +99,16 @@ class CanvaView: UIView {
     
     var brushSize: CGSize = CGSize(width: 256, height: 256)
     
+    // When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
+    // So the uiimage drawingImage serves as our backbuffer.
+    // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
+    override func draw(_ rect: CGRect) {
+
+        // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
+        self.image?.draw(in: rect)
+    }
+    
+    /*
     override func draw(_ rect: CGRect) {
 
         if let ctx: CGContext = UIGraphicsGetCurrentContext() {
@@ -205,6 +215,70 @@ class CanvaView: UIView {
             
         }
     }
+    */
+    
+    func _draw() {
+        
+        let renderer = UIGraphicsImageRenderer(size: bounds.size)
+
+        self.image = renderer.image { context in
+            
+            // Draw current state of the image into the context
+            self.image?.draw(in: bounds)
+            
+            let ctx = context.cgContext
+            
+            for touchSample in self.touchSamples {
+
+                // If the mask is an image, then white areas are opaque, and black areas are transparent
+                // If the mas is a mask, white areas are transparent and black areas opaque.
+                // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
+                
+                let pos: CGPoint = CGPoint(x: touchSample.pos.x * UIScreen.main.scale - brushSize.width/2.0,
+                                           y: touchSample.pos.y * UIScreen.main.scale  - brushSize.height/2.0)
+                let rect: CGRect = CGRect(origin: pos, size: brushSize)
+
+                //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
+                let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
+                
+                
+                if let cgCopy: CGImage = cgCopy,
+                   let mask: CGImage = UIImage(named: "mask_1_S")?.cgImage {
+                    
+                    if let masked: CGImage = cgCopy.masking(mask) {
+                        
+                        // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
+                        // So no need to realese the mask in Swift, it is all handled by ARC
+
+                        let rect: CGRect = CGRect(origin: .zero, size: brushSize)
+
+                        // Save context state
+                        ctx.saveGState()
+                        
+                        // Flip the context so that the coordinates match the default coordinate system of UIKit
+                        // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+                        ctx.translateBy(x: 0, y: self.bounds.size.height)
+                        ctx.scaleBy(x: 1, y: -1)
+
+                        ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
+                                        y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
+
+                        // Draw
+                        ctx.setAlpha(0.2)
+                        ctx.setBlendMode(.normal)
+                        ctx.draw(masked, in: rect)
+                        
+                        // Restore context state
+                        ctx.restoreGState()
+                    }
+                }
+            }
+            
+            self.setNeedsDisplay()
+            
+        }
+    }
+    
     
     /*
     // Overriding draw(rect:), this draws a checkerboard pattern
@@ -343,7 +417,7 @@ class CanvaView: UIView {
         guard let touch: UITouch = touches.first else { return }
         
         addSample(touch)
-        self.setNeedsDisplay()
+        
         
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
@@ -355,7 +429,8 @@ class CanvaView: UIView {
         guard let touch: UITouch = touches.first else { return }
         
         addSample(touch)
-        self.setNeedsDisplay()
+        // Call the drawing
+        self._draw()
         
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
