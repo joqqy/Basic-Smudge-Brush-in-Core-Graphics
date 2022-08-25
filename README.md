@@ -10,4 +10,6 @@
 
 To implement a production code, you would use the same basic logic (there are no rules, just do whatever fits your needs), but implement it in Metal (or any other framework that takes advantage of the GPU).
 
-![Screenshot](appscreen.jpg)
+<p align="center">
+<img src="appscreen.jpg" width="100" title="Screenshot"
+</p>
