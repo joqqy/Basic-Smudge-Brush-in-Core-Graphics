@@ -9,7 +9,7 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    var canvas: CanvaView!
+    var canvas: CanvasView!
 
     @IBOutlet weak var toolSwitch: UISegmentedControl!
     
@@ -27,12 +27,14 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        //self.view.backgroundColor = .white
+        let canvasSize: CGSize = CGSize(width: 512.0, height: 512.0)
+        let origin: CGPoint = CGPoint(x: self.view.center.x - canvasSize.width/2,
+                                      y: self.view.center.y - canvasSize.height/2)
+        let rect: CGRect = CGRect(origin: origin, size: canvasSize)
+        self.canvas = CanvasView(frame: rect)
         
-        self.canvas = CanvaView(frame: self.view.frame)
-        if let view: CanvaView = self.canvas {
-            self.view.addSubview(view)
-            self.view.sendSubviewToBack(self.canvas)
+        if let canvas = canvas {
+            self.view.addSubview(canvas)
         }
     }
 }

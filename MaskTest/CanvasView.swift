@@ -14,7 +14,7 @@ struct Sample {
     var force: CGFloat = 1.0
 }
 
-class CanvaView: UIView {
+class CanvasView: UIView {
     
     /// Will receive continues pixel data from CanvasView backing layer
     var imageView: UIImageView!
@@ -35,7 +35,7 @@ class CanvaView: UIView {
         self.image = UIImage(named: "tiger")
         
         // To position the UIImageView if we use it
-        let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
+        //let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
         //drawMask(at: pos)
         //drawMask_With_CIImage(at: pos)
     }
@@ -481,7 +481,7 @@ class CanvaView: UIView {
     }
 }
 
-extension CanvaView {
+extension CanvasView {
     
     func drawCheckerBoard() {
         
