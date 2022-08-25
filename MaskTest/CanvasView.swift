@@ -25,7 +25,7 @@ class CanvaView: UIView {
     var touchSamples: [Sample] = []
     
     override func didMoveToSuperview() {
-        
+
         self.backgroundColor = .lightGray
 
         //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
@@ -133,17 +133,17 @@ class CanvaView: UIView {
                 
                 for row in 0 ..< 10 {
                     for col in 0 ..< 10 {
-                        
+
                         if (row + col) % 2 == 0 {
-                            
+
                             ctx.setFillColor(UIColor.black.cgColor)
                             ctx.fill(CGRect(x: col * 64,
                                             y: row * 64,
                                             width: 64,
                                             height: 64))
-                            
+
                         } else {
-                            
+
                             ctx.setFillColor(UIColor.white.cgColor)
                             ctx.fill(CGRect(x: col * 64,
                                             y: row * 64,
