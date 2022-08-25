@@ -291,7 +291,8 @@ class CanvasView: UIView {
                     // Set some drawing settings for the context
                     //------------------------------------------------------------------------
                     // Draw
-                    ctx.setAlpha(max(1.0 * touchSample.force, 1.0))
+                    let alphaConstantFactor: CGFloat = 0.3
+                    ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
                     ctx.setBlendMode(.normal)
                     
                     //------------------------------------------------------------------------
