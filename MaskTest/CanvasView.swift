@@ -19,6 +19,7 @@ class CanvasView: UIView {
     
     /// Will receive continues pixel data from CanvasView backing layer
     var imageView: UIImageView!
+    var outlineView: UIImageView!
     
     /// We draw into this and then this draws itself into the backing layer
     var image: UIImage?
@@ -52,6 +53,23 @@ class CanvasView: UIView {
         gestureTap.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
         gestureTap.numberOfTapsRequired = 2
         self.addGestureRecognizer(gestureTap)
+        
+        self.outlineView = UIImageView(frame: CGRect(origin: .zero, size: brushSize).insetBy(dx: 5, dy: 5))
+        let renderer = UIGraphicsImageRenderer(size: self.outlineView.bounds.size)
+        let img = renderer.image { context in
+            
+            let ctx = context.cgContext
+            
+            ctx.setStrokeColor(UIColor.lightGray.cgColor)
+            ctx.setLineWidth(1)
+            
+            ctx.setAlpha(0.5)
+            ctx.setBlendMode(.overlay)
+            
+            ctx.addEllipse(in: self.outlineView.bounds)
+            ctx.drawPath(using: .stroke)
+        }
+        self.outlineView.image = img
     }
     
     /// On double tap, restore the image
@@ -59,6 +77,7 @@ class CanvasView: UIView {
         
         self.image = UIImage(named: "tiger")
         self.touchSamples.removeAll()
+        self.setNeedsDisplay()
     }
     
     // Whenver we call layer.setNeedsDisplay(), this is called
@@ -342,8 +361,12 @@ class CanvasView: UIView {
                     // Draw
                     ctx.draw(masked, in: rect)
                     
-                    
-                    
+                    /*
+                    ctx.setStrokeColor(UIColor.lightGray.cgColor)
+                    ctx.setLineWidth(2)
+                    ctx.addEllipse(in: rect)
+                    ctx.drawPath(using: .stroke)
+                    */
                     
                     //------------------------------------------------------------------------
                     // Restore the context
@@ -477,10 +500,18 @@ class CanvasView: UIView {
         // Call the drawing
         self.smudge()
         
+        
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
             foundView.center = pos
         }
+        self.addSubview(self.outlineView)
+        
+        self.outlineView.bounds = CGRect(x: 0,
+                                         y: 0,
+                                         width: touchSamples.last!.force * self.brushSize.width,
+                                         height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
+        self.outlineView.center = pos
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
@@ -494,6 +525,12 @@ class CanvasView: UIView {
         if let foundView = self.viewWithTag(0xDEADBEEF) {
             foundView.center = pos
         }
+        self.outlineView.bounds = CGRect(x: 0,
+                                         y: 0,
+                                         width: touchSamples.last!.force * self.brushSize.width,
+                                         height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
+        
+        self.outlineView.center = pos
         
         if self.doInterpolate {
             
@@ -541,7 +578,10 @@ class CanvasView: UIView {
         
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        self.outlineView.transform = CGAffineTransform.identity
         self.touchSamples.removeAll()
+        self.outlineView.removeFromSuperview()
     }
     func addSample(_ touch: UITouch) -> Void {
         
@@ -552,6 +592,8 @@ class CanvasView: UIView {
         
         if touch.force > 0 {
             sample.force = touch.force
+        } else {
+            sample.force = 1.0
         }
         
         self.touchSamples.append(sample)
