@@ -8,6 +8,11 @@
 import Foundation
 import UIKit
 
+struct Sample {
+    
+    var pos: CGPoint = .zero
+}
+
 class CanvaView: UIView {
     
     /// Will receive continues pixel data from CanvasView backing layer
@@ -16,6 +21,8 @@ class CanvaView: UIView {
     var image: UIImage?
     
     var toolSegmentIndex: Int = 0 // default is 0 = paint
+    
+    var touchSamples: [Sample] = []
     
     override func didMoveToSuperview() {
         
@@ -90,6 +97,8 @@ class CanvaView: UIView {
     }
     */
     
+    var brushSize: CGSize = CGSize(width: 256, height: 256)
+    
     override func draw(_ rect: CGRect) {
 
         if let ctx: CGContext = UIGraphicsGetCurrentContext() {
@@ -98,43 +107,51 @@ class CanvaView: UIView {
             {
             case 0:
                 
-                ctx.setFillColor(UIColor.black.cgColor)
-                
+                // Note, this only draw black squares, meaning the squares that contain white are really just transparent
+                // To draw white squares too uncomment the commented code
                 for row in 0 ..< 10 {
                     for col in 0 ..< 10 {
+                        
                         if (row + col) % 2 == 0 {
+                            
+                            ctx.setFillColor(UIColor.black.cgColor)
                             ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
-                        }
+                            
+                        } /*else {
+                            
+                            ctx.setFillColor(UIColor.white.cgColor)
+                            ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                        }*/
                     }
                 }
                 
             case 1:
                 
-                if let cg: CGImage = self.image?.cgImage,
-                   let size: CGSize = self.image?.size {
-                    
-                    for row in 0 ..< 10 {
-                        for col in 0 ..< 10 {
-                            if (row + col) % 2 == 0 {
-                                
-                                ctx.setFillColor(UIColor.black.cgColor)
-                                ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
-                                
-                            } else {
-                                
-                                ctx.setFillColor(UIColor.white.cgColor)
-                                ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
-                            }
+                for row in 0 ..< 10 {
+                    for col in 0 ..< 10 {
+                        
+                        if (row + col) % 2 == 0 {
+                            
+                            ctx.setFillColor(UIColor.black.cgColor)
+                            ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                            
+                        } else {
+                            
+                            ctx.setFillColor(UIColor.white.cgColor)
+                            ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
                         }
                     }
+                }
+                
+                for touchSample in self.touchSamples {
 
                     // If the mask is an image, then white areas are opaque, and black areas are transparent
                     // If the mas is a mask, white areas are transparent and black areas opaque.
                     // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
                     
                     
-                    let rect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-//                    let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
+                    let rect: CGRect = CGRect(x: 0, y: 0, width: brushSize.width, height: brushSize.height)
+                    //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
                     let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
 
                     if let cgCopy: CGImage = cgCopy,
@@ -142,26 +159,29 @@ class CanvaView: UIView {
                         
                         if let masked: CGImage = cgCopy.masking(mask) {
                             
-                            print("hello")
-                            
                             // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
                             // So no need to realese the mask in Swift, it is all handled by ARC
 
-                            let rect: CGRect = CGRect(origin: .zero, size: size)
+                            let rect: CGRect = CGRect(origin: .zero, size: brushSize)
 
                             // Save context state
                             ctx.saveGState()
 
                             // Flip the context so that the coordinates match the default coordinate system of UIKit
                             // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-                            ctx.translateBy(x: 0 + 700, y: size.width + 50)
+//                            ctx.translateBy(x: 0, y: brushSize.width)
 //                            ctx.scaleBy(x: 1, y: -1)
+//                            
+                            // Translation
+                            ctx.translateBy(x: touchSample.pos.x - brushSize.width/2,
+                                            y: touchSample.pos.y - brushSize.height/2)
 
                             // Draw
                             ctx.setAlpha(1.0)
                             ctx.setBlendMode(.normal)
                             ctx.draw(masked, in: rect)
 
+                            
                             // Restore context state
                             ctx.restoreGState()
                         }
@@ -311,6 +331,9 @@ class CanvaView: UIView {
         
         guard let touch: UITouch = touches.first else { return }
         
+        addSample(touch)
+        self.setNeedsDisplay()
+        
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
             foundView.center = pos
@@ -320,10 +343,25 @@ class CanvaView: UIView {
         
         guard let touch: UITouch = touches.first else { return }
         
+        addSample(touch)
+        self.setNeedsDisplay()
+        
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
             foundView.center = pos
         }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.touchSamples.removeAll()
+    }
+    
+    func addSample(_ touch: UITouch) -> Void {
+        
+        var sample = Sample()
+        sample.pos = touch.location(in: self)
+        
+        self.touchSamples.append(sample)
     }
 }
 
