@@ -149,7 +149,6 @@ class CanvaView: UIView {
                     // If the mas is a mask, white areas are transparent and black areas opaque.
                     // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
                     
-                    
                     let rect: CGRect = CGRect(x: 0, y: 0, width: brushSize.width, height: brushSize.height)
                     //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
                     let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
@@ -167,11 +166,6 @@ class CanvaView: UIView {
                             // Save context state
                             ctx.saveGState()
 
-                            // Flip the context so that the coordinates match the default coordinate system of UIKit
-                            // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-//                            ctx.translateBy(x: 0, y: brushSize.width)
-//                            ctx.scaleBy(x: 1, y: -1)
-//                            
                             // Translation
                             ctx.translateBy(x: touchSample.pos.x - brushSize.width/2,
                                             y: touchSample.pos.y - brushSize.height/2)
@@ -180,7 +174,6 @@ class CanvaView: UIView {
                             ctx.setAlpha(1.0)
                             ctx.setBlendMode(.normal)
                             ctx.draw(masked, in: rect)
-
                             
                             // Restore context state
                             ctx.restoreGState()
