@@ -4,7 +4,7 @@
 
 ### This example draws a starting image into an UIImage.
 
-### For each touch, we copy a portion(the size of the brush), for the previous touch positions, from the current CGContext, crop and mask it, and then draws´ that into the current context with appropriate settings.
+### For each touch, we copy a portion(the size of the brush), for the previous touch positions, from the current CGContext, crop and mask it, and then draw that into the current context with appropriate settings.
 
 ### The UIImage draws itself into the context as to update each change.
 
