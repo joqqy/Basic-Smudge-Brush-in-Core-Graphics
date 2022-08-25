@@ -1,4 +1,5 @@
 # Simple implementation on how to do smudging in Core Graphics.
+
 # Warning, this is not very performant, it simply illustrates the logic that goes into implementing a smudge brush. This is just a test suite for what we will implement in Metal.
 
 ## This example draws a starting image into an UIImage.
