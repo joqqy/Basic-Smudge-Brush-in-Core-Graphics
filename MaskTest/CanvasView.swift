@@ -27,6 +27,9 @@ class CanvasView: UIView {
     
     /// Collect the touch information in here
     var touchSamples: [Sample] = []
+    /// Spacing for line segments
+    var kBrushPixelStep: CGFloat = 1.0
+    var doInterpolate: Bool = false // :false, true is very slow
     
     var brushSize: CGSize = CGSize(width: 30, height: 30)
     
@@ -328,7 +331,7 @@ class CanvasView: UIView {
                     // Set some drawing settings for the context
                     //------------------------------------------------------------------------
                     // Draw
-                    let alphaConstantFactor: CGFloat = 0.2
+                    let alphaConstantFactor: CGFloat = 0.1
                     ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
                     ctx.setBlendMode(.normal)
                     //------------------------------------------------------------------------
@@ -491,6 +494,51 @@ class CanvasView: UIView {
         if let foundView = self.viewWithTag(0xDEADBEEF) {
             foundView.center = pos
         }
+        
+        if self.doInterpolate {
+            
+            var spacingCount: Int = 0
+            
+            if self.touchSamples.count > 1 {
+                var interpolatedLine: [Sample] = [Sample]()
+                // Do a linear interpolation between a pair of points, to fill the gap with additional points with kBrushPixelStep spacing
+                for i in 0 ..< self.touchSamples.count - 1 {
+                    
+                    let prev0: CGPoint = self.touchSamples[i].previousPos
+                    let prev1: CGPoint = self.touchSamples[i + 1].previousPos
+                    
+                    let p0: CGPoint = self.touchSamples[i].pos
+                    let p1: CGPoint = self.touchSamples[i + 1].pos
+                    
+                    let force0: CGFloat = self.touchSamples[i].force
+                    let force1: CGFloat = self.touchSamples[i + 1].force
+                    // Interpolate force
+                    let force = (force0 + force1) / 2.0
+                    
+                    // How many points do we need to distribute between each pair of points to satisfy the option to get n xpixes between each point
+                    spacingCount = max(Int(ceil(CGPoint.length(p0 - p1) / self.kBrushPixelStep)), 1)
+
+                    // Interpolate pos linearly between the two points
+                    for n in 0 ..< spacingCount {
+                        
+                        let s: CGFloat = (CGFloat(n) / CGFloat(spacingCount))
+                        let prevPos: CGPoint = s * (prev1 - prev0) + prev0
+                        let pos: CGPoint = s * (p1 - p0) + p0
+                        
+                        var sample = Sample()
+                        
+                        sample.previousPos = prevPos
+                        sample.pos = pos
+                        sample.force = force
+                        
+                        interpolatedLine.append(sample)
+                    }
+                }
+                
+                self.touchSamples = interpolatedLine
+            }
+        }
+        
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.touchSamples.removeAll()
