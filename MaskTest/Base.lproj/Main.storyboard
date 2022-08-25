@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="ipad12_9" orientation="landscape" layout="fullscreen" appearance="light"/>
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -13,15 +13,11 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="MaskTest" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="N2h-5w-KNe">
-                                <rect key="frame" x="514" y="919" width="338" height="32"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="31" id="EMk-tE-c7t"/>
-                                    <constraint firstAttribute="width" constant="338" id="UBr-Pc-qkf"/>
-                                </constraints>
+                                <rect key="frame" x="22" y="32" width="337" height="32"/>
                                 <segments>
                                     <segment title="Paint"/>
                                     <segment title="Smudge"/>
@@ -30,12 +26,21 @@
                                     <action selector="toolAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="915-1J-vaN"/>
                                 </connections>
                             </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Double tap the canvas to clear." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xu4-v1-hcj">
+                                <rect key="frame" x="70" y="87" width="235" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" systemColor="systemMintColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="N2h-5w-KNe" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="899" id="WJ1-SI-2qA"/>
-                            <constraint firstItem="N2h-5w-KNe" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="o6s-nq-T6B"/>
+                            <constraint firstItem="N2h-5w-KNe" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="22" id="0K6-VE-H6k"/>
+                            <constraint firstItem="N2h-5w-KNe" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="32" id="6C4-Pe-Obg"/>
+                            <constraint firstItem="N2h-5w-KNe" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="8kr-c5-Tuc"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="xu4-v1-hcj" secondAttribute="bottom" constant="559" id="Db4-Go-YmN"/>
+                            <constraint firstItem="xu4-v1-hcj" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="emr-My-gMH"/>
                         </constraints>
                     </view>
                     <connections>
@@ -50,6 +55,9 @@
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemMintColor">
+            <color red="0.0" green="0.7803921568627451" blue="0.74509803921568629" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

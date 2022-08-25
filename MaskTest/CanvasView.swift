@@ -77,7 +77,7 @@ class CanvasView: UIView {
     
     func createBrushOutline() {
         
-        self.outlineView = UIImageView(frame: CGRect(origin: .zero, size: brushSize).insetBy(dx: 5, dy: 5))
+        self.outlineView = UIImageView(frame: CGRect(origin: .zero, size: brushSize))
         let renderer = UIGraphicsImageRenderer(size: self.outlineView.bounds.size)
         let img = renderer.image { context in
             
@@ -89,7 +89,8 @@ class CanvasView: UIView {
             ctx.setAlpha(0.5)
             ctx.setBlendMode(.overlay)
             
-            ctx.addEllipse(in: self.outlineView.bounds)
+            let rect = CGRect(origin: .zero, size: brushSize).insetBy(dx: 5, dy: 5)
+            ctx.addEllipse(in: rect)
             ctx.drawPath(using: .stroke)
         }
         self.outlineView.image = img
@@ -312,8 +313,8 @@ class CanvasView: UIView {
             
             for touchSample in self.touchSamples {
                 
-                let brushSize = CGSize(width: brushSize.width * touchSample.force,
-                                       height: brushSize.height * touchSample.force)
+                let brushSize = CGSize(width: brushSize.width * min(touchSample.force, 1.5),
+                                       height: brushSize.height * min(touchSample.force, 1.5))
 
                 // If the mask is an image, then white areas are opaque, and black areas are transparent
                 // If the mas is a mask, white areas are transparent and black areas opaque.
@@ -435,12 +436,12 @@ class CanvasView: UIView {
                     //------------------------------------------------------------------------
                     // Flip the context so that the coordinates match the default coordinate system of UIKit
                     // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-                    ctx.translateBy(x: 0, y: self.bounds.size.height)
-                    ctx.scaleBy(x: 1, y: -1)
+//                    ctx.translateBy(x: 0, y: self.bounds.size.height)
+//                    ctx.scaleBy(x: 1, y: -1)
 
                     // Transform the context with respect to the touch position
-                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0 * touchSample.force,
-                                    y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0 * touchSample.force)
+                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
+                                    y: touchSample.pos.y - brushSize.height/2.0)
 
                     
                     
@@ -608,8 +609,8 @@ class CanvasView: UIView {
         
         self.outlineView.bounds = CGRect(x: 0,
                                          y: 0,
-                                         width: touchSamples.last!.force * self.brushSize.width,
-                                         height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
+                                         width: min(touchSamples.last!.force, 1.2) * self.brushSize.width,
+                                         height: min(touchSamples.last!.force, 1.2) * self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
         
         // Call the tool
@@ -640,8 +641,8 @@ class CanvasView: UIView {
         }
         self.outlineView.bounds = CGRect(x: 0,
                                          y: 0,
-                                         width: touchSamples.last!.force * self.brushSize.width,
-                                         height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
+                                         width: min(touchSamples.last!.force, 1.2) * self.brushSize.width,
+                                         height: min(touchSamples.last!.force, 1.2) * self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
         
         if self.doInterpolate || self.toolSegmentIndex == 0 {
@@ -708,7 +709,7 @@ class CanvasView: UIView {
         self.touchSamples.removeAll()
         self.outlineView.removeFromSuperview()
         
-        self.brushSize = CGSize(width: 30, height: 30)        
+        self.brushSize = CGSize(width: 30, height: 30)
     }
     func addSample(_ touch: UITouch) -> Void {
         

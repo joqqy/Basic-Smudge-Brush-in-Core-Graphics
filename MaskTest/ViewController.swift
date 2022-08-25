@@ -28,7 +28,7 @@ class ViewController: UIViewController {
         
         let canvasSize: CGSize = CGSize(width: 512.0, height: 512.0)
         let origin: CGPoint = CGPoint(x: self.view.center.x - canvasSize.width/2,
-                                      y: self.view.center.y - canvasSize.height/2)
+                                      y: self.view.center.y - canvasSize.height/2 + 50)
         let rect: CGRect = CGRect(origin: origin, size: canvasSize)
         self.canvas = CanvasView(frame: rect)
         
