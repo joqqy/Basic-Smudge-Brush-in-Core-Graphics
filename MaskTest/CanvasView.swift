@@ -39,6 +39,18 @@ class CanvasView: UIView {
         //let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
         //drawMask(at: pos)
         //drawMask_With_CIImage(at: pos)
+        
+        // Double tap to clear the image view
+        let gestureTap = UITapGestureRecognizer(target: self, action: #selector(restoreImage))
+        gestureTap.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
+        gestureTap.numberOfTapsRequired = 2
+        self.addGestureRecognizer(gestureTap)
+    }
+    
+    @objc func restoreImage() {
+        
+        self.image = UIImage(named: "tiger")
+        self.touchSamples.removeAll()
     }
     
     // Whenver we call layer.setNeedsDisplay(), this is called
@@ -245,8 +257,8 @@ class CanvasView: UIView {
                 //------------------------------------------------------------------------
                 let radiusX = brushSize.width/2.0
                 let radiusY = brushSize.height/2.0
-                let previousPos: CGPoint = CGPoint(x: touchSample.pos.x * UIScreen.main.scale - radiusX,
-                                                   y: touchSample.pos.y * UIScreen.main.scale - radiusY)
+                let previousPos: CGPoint = CGPoint(x: touchSample.previousPos.x * UIScreen.main.scale - radiusX,
+                                                   y: touchSample.previousPos.y * UIScreen.main.scale - radiusY)
                 let rect: CGRect = CGRect(origin: previousPos, size: brushSize)
                 
                 //------------------------------------------------------------------------
