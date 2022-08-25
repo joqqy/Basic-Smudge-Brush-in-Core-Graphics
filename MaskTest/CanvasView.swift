@@ -227,7 +227,7 @@ class CanvaView: UIView {
             // Draw current state of the image into the context
             self.image?.draw(in: bounds)
             
-            let ctx = context.cgContext
+            let ctx: CGContext = context.cgContext
             
             for touchSample in self.touchSamples {
                 
@@ -238,48 +238,71 @@ class CanvaView: UIView {
                 // If the mas is a mask, white areas are transparent and black areas opaque.
                 // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
                 
+                //------------------------------------------------------------------------
+                // Calculate the rect we want to copy from the current context (we will use this rect for CGContext.makeImage().cropping8to: rect)
+                //------------------------------------------------------------------------
                 let pos: CGPoint = CGPoint(x: touchSample.pos.x * UIScreen.main.scale - brushSize.width/2.0,
                                            y: touchSample.pos.y * UIScreen.main.scale  - brushSize.height/2.0)
                 let rect: CGRect = CGRect(origin: pos, size: brushSize)
-
+                
+                //------------------------------------------------------------------------
+                // Copy an image from the current context, we get a CGImage. Crop it to desired size and location
+                //------------------------------------------------------------------------
+                
                 //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
                 let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
                 
-                
+                //------------------------------------------------------------------------
+                // Apply a mask to the copied image
+                //------------------------------------------------------------------------
                 if let cgCopy: CGImage = cgCopy,
-                   let mask: CGImage = UIImage(named: "mask_1_S")?.cgImage {
+                   let mask: CGImage = UIImage(named: "mask_1_S")?.cgImage,
+                   let masked: CGImage = cgCopy.masking(mask) {
+                        
+                    // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
+                    // So no need to realese the mask in Swift, it is all handled by ARC
+
+                    //------------------------------------------------------------------------
+                    // Set size of the copied image we want to draw into the contex
+                    //------------------------------------------------------------------------
+                    let rect: CGRect = CGRect(origin: .zero, size: brushSize)
+
+                    //------------------------------------------------------------------------
+                    // Save the context state and all subsuquent changes
+                    //------------------------------------------------------------------------
+                    ctx.saveGState()
                     
-                    if let masked: CGImage = cgCopy.masking(mask) {
-                        
-                        // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
-                        // So no need to realese the mask in Swift, it is all handled by ARC
+                    //------------------------------------------------------------------------
+                    // Transform the coordinates of the contex
+                    //------------------------------------------------------------------------
+                    // Flip the context so that the coordinates match the default coordinate system of UIKit
+                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+                    ctx.translateBy(x: 0, y: self.bounds.size.height)
+                    ctx.scaleBy(x: 1, y: -1)
 
-                        let rect: CGRect = CGRect(origin: .zero, size: brushSize)
+                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
+                                    y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
 
-                        // Save context state
-                        ctx.saveGState()
-                        
-                        // Flip the context so that the coordinates match the default coordinate system of UIKit
-                        // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-                        ctx.translateBy(x: 0, y: self.bounds.size.height)
-                        ctx.scaleBy(x: 1, y: -1)
-
-                        ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
-                                        y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
-
-                        // Draw
-                        ctx.setAlpha(1.0 * touchSample.force)
-                        ctx.setBlendMode(.normal)
-                        ctx.draw(masked, in: rect)
-                        
-                        // Restore context state
-                        ctx.restoreGState()
-                    }
+                    //------------------------------------------------------------------------
+                    // Set some drawing settings for the context
+                    //------------------------------------------------------------------------
+                    // Draw
+                    ctx.setAlpha(max(1.0 * touchSample.force, 1.0))
+                    ctx.setBlendMode(.normal)
+                    
+                    //------------------------------------------------------------------------
+                    // Draw into the context
+                    //------------------------------------------------------------------------
+                    ctx.draw(masked, in: rect)
+                    
+                    //------------------------------------------------------------------------
+                    // Restore the context
+                    //------------------------------------------------------------------------
+                    ctx.restoreGState()
                 }
             }
             
             self.setNeedsDisplay()
-            
         }
     }
     
