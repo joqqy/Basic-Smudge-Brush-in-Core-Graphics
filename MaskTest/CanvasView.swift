@@ -107,21 +107,25 @@ class CanvaView: UIView {
             {
             case 0:
                 
-                // Note, this only draw black squares, meaning the squares that contain white are really just transparent
-                // To draw white squares too uncomment the commented code
                 for row in 0 ..< 10 {
                     for col in 0 ..< 10 {
                         
                         if (row + col) % 2 == 0 {
                             
                             ctx.setFillColor(UIColor.black.cgColor)
-                            ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                            ctx.fill(CGRect(x: col * 64,
+                                            y: row * 64,
+                                            width: 64,
+                                            height: 64))
                             
-                        } /*else {
+                        } else {
                             
                             ctx.setFillColor(UIColor.white.cgColor)
-                            ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
-                        }*/
+                            ctx.fill(CGRect(x: col * 64,
+                                            y: row * 64,
+                                            width: 64,
+                                            height: 64))
+                        }
                     }
                 }
                 
@@ -159,12 +163,6 @@ class CanvaView: UIView {
                                                y: touchSample.pos.y * UIScreen.main.scale  - brushSize.height/2.0)
                     let rect: CGRect = CGRect(origin: pos, size: brushSize)
 
-
-//                    // Flip the context so that the coordinates match the default coordinate system of UIKit
-//                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-//                    ctx.translateBy(x: 0, y: CGFloat(ctx.height))
-//                    ctx.scaleBy(x: 1, y: -1)
-                    
                     //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
                     let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
                     
