@@ -23,6 +23,7 @@ class CanvasView: UIView {
     
     /// We draw into this and then this draws itself into the backing layer
     var image: UIImage?
+    var brushImage: UIImage?
     
     var toolSegmentIndex: Int = 0
     
@@ -43,6 +44,23 @@ class CanvasView: UIView {
         
         self.image = UIImage(named: "tiger")
         
+        self.brushImage = UIImage(named: "brush1")?.withRenderingMode(.alwaysTemplate)
+        self.brushImage = self.brushImage?.withTintColor(.red)
+                
+        // We can scale the image by setting the rect appropriately instead in the context.draw() instead
+        
+        // For now though, this is the only way to set the color for the brushimage, not sue why tintcolor does not work unless we do this below
+         
+        // Scale the uiimage
+        // Also, for some reason, color works well when we do a rescale, while color in the above does not work, very weird.
+        let image: UIImage? = self.brushImage
+        let scaledImageSize: CGSize = CGSize(width: brushSize.width, height: brushSize.height)
+        let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: scaledImageSize)
+        let scaledImage: UIImage = renderer.image { _ in
+            image?.draw(in: CGRect(origin: .zero, size: scaledImageSize))
+        }
+        self.brushImage = scaledImage
+        
         // To position the UIImageView if we use it
         //let pos: CGPoint = CGPoint(x: self.center.x, y: self.center.y)
         //drawMask(at: pos)
@@ -53,6 +71,11 @@ class CanvasView: UIView {
         gestureTap.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
         gestureTap.numberOfTapsRequired = 2
         self.addGestureRecognizer(gestureTap)
+        
+        self.createBrushOutline()
+    }
+    
+    func createBrushOutline() {
         
         self.outlineView = UIImageView(frame: CGRect(origin: .zero, size: brushSize).insetBy(dx: 5, dy: 5))
         let renderer = UIGraphicsImageRenderer(size: self.outlineView.bounds.size)
@@ -378,6 +401,82 @@ class CanvasView: UIView {
             self.setNeedsDisplay()
         }
     }
+    func paint() {
+        
+        let renderer = UIGraphicsImageRenderer(size: bounds.size)
+
+        self.image = renderer.image { context in
+            
+            // Draw current state of the image into the context
+            self.image?.draw(in: bounds)
+            
+            let ctx: CGContext = context.cgContext
+            
+            for touchSample in self.touchSamples {
+                
+                //------------------------------------------------------------------------
+                // Apply a mask to the copied image
+                //------------------------------------------------------------------------
+                if let brush: CGImage = self.brushImage?.cgImage {
+                        
+                    // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
+                    // So no need to realese the mask in Swift, it is all handled by ARC
+
+
+                    //------------------------------------------------------------------------
+                    // Save the context state and all subsuquent changes
+                    //------------------------------------------------------------------------
+                    ctx.saveGState()
+                    
+                    
+                    
+                    //------------------------------------------------------------------------
+                    // Transform the coordinates of the context
+                    //------------------------------------------------------------------------
+                    // Flip the context so that the coordinates match the default coordinate system of UIKit
+                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+                    ctx.translateBy(x: 0, y: self.bounds.size.height)
+                    ctx.scaleBy(x: 1, y: -1)
+
+                    // Transform the context with respect to the touch position
+                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
+                                    y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
+
+                    
+                    
+                    
+                    //------------------------------------------------------------------------
+                    // Set some drawing settings for the context
+                    //------------------------------------------------------------------------
+                    // Draw
+                    let alphaConstantFactor: CGFloat = 0.5
+                    ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
+                    ctx.setBlendMode(.normal)
+                    //------------------------------------------------------------------------
+                    // Draw into the context
+                    //------------------------------------------------------------------------
+                    // Set size of the copied image we want to draw into the contex
+                    let rect: CGRect = CGRect(origin: .zero, size: brushSize)
+                    // Draw
+                    ctx.draw(brush, in: rect)
+                    
+                    /*
+                    ctx.setStrokeColor(UIColor.lightGray.cgColor)
+                    ctx.setLineWidth(2)
+                    ctx.addEllipse(in: rect)
+                    ctx.drawPath(using: .stroke)
+                    */
+                    
+                    //------------------------------------------------------------------------
+                    // Restore the context
+                    //------------------------------------------------------------------------
+                    ctx.restoreGState()
+                }
+            }
+            
+            self.setNeedsDisplay()
+        }
+    }
     
     /// We can do this as well
     /// - Parameters:
@@ -509,8 +608,18 @@ class CanvasView: UIView {
                                          height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
         
-        // Call the drawing
-        self.smudge()
+        // Call the tool
+        switch self.toolSegmentIndex
+        {
+        case 0:
+            self.paint()
+            
+        case 1:
+            self.smudge()
+            
+        default:
+            break
+        }
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
@@ -571,8 +680,18 @@ class CanvasView: UIView {
             }
         }
         
-        // Call the drawing
-        self.smudge()
+        // Call the tool
+        switch self.toolSegmentIndex
+        {
+        case 0:
+            self.paint()
+            
+        case 1:
+            self.smudge()
+            
+        default:
+            break
+        }
         
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
