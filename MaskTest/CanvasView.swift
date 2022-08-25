@@ -111,7 +111,7 @@ class CanvasView: UIView {
     }
     */
     
-    var brushSize: CGSize = CGSize(width: 50, height: 50)
+    var brushSize: CGSize = CGSize(width: 40, height: 40)
     
     // When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
     // So the uiimage drawingImage serves as our backbuffer.
@@ -253,7 +253,7 @@ class CanvasView: UIView {
                 
                 //------------------------------------------------------------------------
                 // Calculate the rect we want to copy from the current context (we will use this rect for CGContext.makeImage().cropping8to: rect)
-                // FIXME: Logic tells me this should be previousPos, but it does not work well.
+                // The principal method is we copy the context from the previous touch pos, then copy that over to the current touch pos(later down as we draw it on the context)
                 //------------------------------------------------------------------------
                 let radiusX = brushSize.width/2.0
                 let radiusY = brushSize.height/2.0
@@ -278,27 +278,29 @@ class CanvasView: UIView {
                     // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
                     // So no need to realese the mask in Swift, it is all handled by ARC
 
-                    //------------------------------------------------------------------------
-                    // Set size of the copied image we want to draw into the contex
-                    //------------------------------------------------------------------------
-                    let rect: CGRect = CGRect(origin: .zero, size: brushSize)
 
                     //------------------------------------------------------------------------
                     // Save the context state and all subsuquent changes
                     //------------------------------------------------------------------------
                     ctx.saveGState()
                     
+                    
+                    
                     //------------------------------------------------------------------------
-                    // Transform the coordinates of the contex
+                    // Transform the coordinates of the context
                     //------------------------------------------------------------------------
                     // Flip the context so that the coordinates match the default coordinate system of UIKit
                     // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
                     ctx.translateBy(x: 0, y: self.bounds.size.height)
                     ctx.scaleBy(x: 1, y: -1)
 
+                    // Transform the context with respect to the touch position
                     ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
                                     y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
 
+                    
+                    
+                    
                     //------------------------------------------------------------------------
                     // Set some drawing settings for the context
                     //------------------------------------------------------------------------
@@ -306,11 +308,16 @@ class CanvasView: UIView {
                     let alphaConstantFactor: CGFloat = 0.1
                     ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
                     ctx.setBlendMode(.normal)
-                    
                     //------------------------------------------------------------------------
                     // Draw into the context
                     //------------------------------------------------------------------------
+                    // Set size of the copied image we want to draw into the contex
+                    let rect: CGRect = CGRect(origin: .zero, size: brushSize)
+                    // Draw
                     ctx.draw(masked, in: rect)
+                    
+                    
+                    
                     
                     //------------------------------------------------------------------------
                     // Restore the context
