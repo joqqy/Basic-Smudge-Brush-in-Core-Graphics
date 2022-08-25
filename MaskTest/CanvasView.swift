@@ -69,7 +69,7 @@ class CanvaView: UIView {
                 // If the mas is a mask, white areas are transparent and black areas opaque.
                 // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
 
-                if let mask = UIImage(named: "tigermask_1_S")?.cgImage {
+                if let mask = UIImage(named: "mask_1_S")?.cgImage {
                     if let masked = cg.masking(mask) {
                         
                         // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
@@ -82,7 +82,7 @@ class CanvaView: UIView {
 
                         // Flip the context so that the coordinates match the default coordinate system of UIKit
                         // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-                        ctx.translateBy(x: 0, y: size.width)
+                        ctx.translateBy(x: 0, y: size.height)
                         ctx.scaleBy(x: 1, y: -1)
 
                         // Draw
@@ -133,12 +133,18 @@ class CanvaView: UIView {
                         if (row + col) % 2 == 0 {
                             
                             ctx.setFillColor(UIColor.black.cgColor)
-                            ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                            ctx.fill(CGRect(x: col * 64,
+                                            y: row * 64,
+                                            width: 64,
+                                            height: 64))
                             
                         } else {
                             
                             ctx.setFillColor(UIColor.white.cgColor)
-                            ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                            ctx.fill(CGRect(x: col * 64,
+                                            y: row * 64,
+                                            width: 64,
+                                            height: 64))
                         }
                     }
                 }
@@ -149,12 +155,22 @@ class CanvaView: UIView {
                     // If the mas is a mask, white areas are transparent and black areas opaque.
                     // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
                     
-                    let rect: CGRect = CGRect(x: 0, y: 0, width: brushSize.width, height: brushSize.height)
+                    let pos: CGPoint = CGPoint(x: touchSample.pos.x * UIScreen.main.scale - brushSize.width/2.0,
+                                               y: touchSample.pos.y * UIScreen.main.scale  - brushSize.height/2.0)
+                    let rect: CGRect = CGRect(origin: pos, size: brushSize)
+
+
+//                    // Flip the context so that the coordinates match the default coordinate system of UIKit
+//                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+//                    ctx.translateBy(x: 0, y: CGFloat(ctx.height))
+//                    ctx.scaleBy(x: 1, y: -1)
+                    
                     //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
                     let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
-
+                    
+                    
                     if let cgCopy: CGImage = cgCopy,
-                       let mask: CGImage = UIImage(named: "tigermask_1_S")?.cgImage {
+                       let mask: CGImage = UIImage(named: "mask_1_S")?.cgImage {
                         
                         if let masked: CGImage = cgCopy.masking(mask) {
                             
@@ -165,10 +181,14 @@ class CanvaView: UIView {
 
                             // Save context state
                             ctx.saveGState()
+                            
+//                            // Flip the context so that the coordinates match the default coordinate system of UIKit
+//                            // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+//                            ctx.translateBy(x: 0, y: self.bounds.size.height)
+//                            ctx.scaleBy(x: 1, y: -1)
 
-                            // Translation
-                            ctx.translateBy(x: touchSample.pos.x - brushSize.width/2,
-                                            y: touchSample.pos.y - brushSize.height/2)
+                            ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
+                                            y: touchSample.pos.y - brushSize.height/2.0)
 
                             // Draw
                             ctx.setAlpha(1.0)
