@@ -439,8 +439,8 @@ class CanvasView: UIView {
                     ctx.scaleBy(x: 1, y: -1)
 
                     // Transform the context with respect to the touch position
-                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
-                                    y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
+                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0 * touchSample.force,
+                                    y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0 * touchSample.force)
 
                     
                     
@@ -450,7 +450,7 @@ class CanvasView: UIView {
                     //------------------------------------------------------------------------
                     // Draw
                     let alphaConstantFactor: CGFloat = 0.5
-                    ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
+                    ctx.setAlpha(max(min(touchSample.force * alphaConstantFactor, 1.0), 0.2) * 0.5)
                     ctx.setBlendMode(.normal)
                     //------------------------------------------------------------------------
                     // Draw into the context
@@ -595,6 +595,10 @@ class CanvasView: UIView {
         
         guard let touch: UITouch = touches.first else { return }
         
+        if touch.type == .direct && self.toolSegmentIndex == 1 {
+            self.brushSize = CGSize(width: 80, height: 80)
+        }
+        
         addSample(touch)
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
@@ -624,6 +628,10 @@ class CanvasView: UIView {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         guard let touch: UITouch = touches.first else { return }
+        
+        if touch.type == .direct && self.toolSegmentIndex == 1 {
+            self.brushSize = CGSize(width: 80, height: 80)
+        }
         
         addSample(touch)
         let pos = touch.location(in: self)
@@ -699,6 +707,8 @@ class CanvasView: UIView {
         self.outlineView.transform = CGAffineTransform.identity
         self.touchSamples.removeAll()
         self.outlineView.removeFromSuperview()
+        
+        self.brushSize = CGSize(width: 30, height: 30)        
     }
     func addSample(_ touch: UITouch) -> Void {
         
