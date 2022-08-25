@@ -636,7 +636,7 @@ class CanvasView: UIView {
                                          height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
         
-        if self.doInterpolate {
+        if self.doInterpolate || self.toolSegmentIndex == 0 {
             
             var spacingCount: Int = 0
             
