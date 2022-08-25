@@ -28,7 +28,7 @@ class CanvasView: UIView {
     /// Collect the touch information in here
     var touchSamples: [Sample] = []
     
-    var brushSize: CGSize = CGSize(width: 40, height: 40)
+    var brushSize: CGSize = CGSize(width: 30, height: 30)
     
     override func didMoveToSuperview() {
 
@@ -115,16 +115,6 @@ class CanvasView: UIView {
         }
     }
     */
-    
-    /// This ensures the UIImage keeps updating the canvasView's backing layer by drawing itself into it at every change
-    /// When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
-    /// So the uiimage drawingImage serves as our backbuffer.
-    /// UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
-    override func draw(_ rect: CGRect) {
-
-        // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
-        self.image?.draw(in: rect)
-    }
     
     /*
     override func draw(_ rect: CGRect) {
@@ -235,6 +225,35 @@ class CanvasView: UIView {
     }
     */
     
+    /*
+    // Overriding draw(rect:), this draws a checkerboard pattern
+    override func draw(_ rect: CGRect) {
+        
+        if let ctx = UIGraphicsGetCurrentContext() {
+            
+            ctx.setFillColor(UIColor.black.cgColor)
+            
+            for row in 0 ..< 10 {
+                for col in 0 ..< 10 {
+                    if (row + col) % 2 == 0 {
+                        ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                    }
+                }
+            }
+        }
+    }
+     */
+    
+    /// This ensures the UIImage keeps updating the canvasView's backing layer by drawing itself into it at every change
+    /// When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
+    /// So the uiimage drawingImage serves as our backbuffer.
+    /// UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
+    override func draw(_ rect: CGRect) {
+
+        // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
+        self.image?.draw(in: rect)
+    }
+    
     func smudge() {
         
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
@@ -309,7 +328,7 @@ class CanvasView: UIView {
                     // Set some drawing settings for the context
                     //------------------------------------------------------------------------
                     // Draw
-                    let alphaConstantFactor: CGFloat = 0.1
+                    let alphaConstantFactor: CGFloat = 0.2
                     ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
                     ctx.setBlendMode(.normal)
                     //------------------------------------------------------------------------
@@ -333,26 +352,6 @@ class CanvasView: UIView {
             self.setNeedsDisplay()
         }
     }
-    
-    
-    /*
-    // Overriding draw(rect:), this draws a checkerboard pattern
-    override func draw(_ rect: CGRect) {
-        
-        if let ctx = UIGraphicsGetCurrentContext() {
-            
-            ctx.setFillColor(UIColor.black.cgColor)
-            
-            for row in 0 ..< 10 {
-                for col in 0 ..< 10 {
-                    if (row + col) % 2 == 0 {
-                        ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
-                    }
-                }
-            }
-        }
-    }
-     */
     
     /// We can do this as well
     /// - Parameters:
@@ -493,11 +492,9 @@ class CanvasView: UIView {
             foundView.center = pos
         }
     }
-    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.touchSamples.removeAll()
     }
-    
     func addSample(_ touch: UITouch) -> Void {
         
         var sample = Sample()
