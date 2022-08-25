@@ -497,10 +497,6 @@ class CanvasView: UIView {
         guard let touch: UITouch = touches.first else { return }
         
         addSample(touch)
-        // Call the drawing
-        self.smudge()
-        
-        
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
             foundView.center = pos
@@ -512,15 +508,15 @@ class CanvasView: UIView {
                                          width: touchSamples.last!.force * self.brushSize.width,
                                          height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
+        
+        // Call the drawing
+        self.smudge()
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         guard let touch: UITouch = touches.first else { return }
         
         addSample(touch)
-        // Call the drawing
-        self.smudge()
-        
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
             foundView.center = pos
@@ -529,7 +525,6 @@ class CanvasView: UIView {
                                          y: 0,
                                          width: touchSamples.last!.force * self.brushSize.width,
                                          height: touchSamples.last!.force * self.brushSize.height).insetBy(dx: 5, dy: 5)
-        
         self.outlineView.center = pos
         
         if self.doInterpolate {
@@ -575,6 +570,9 @@ class CanvasView: UIView {
                 self.touchSamples = interpolatedLine
             }
         }
+        
+        // Call the drawing
+        self.smudge()
         
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
