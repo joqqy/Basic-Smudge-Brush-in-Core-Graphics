@@ -20,11 +20,15 @@ class CanvasView: UIView {
     /// Will receive continues pixel data from CanvasView backing layer
     var imageView: UIImageView!
     
+    /// We draw into this and then this draws itself into the backing layer
     var image: UIImage?
     
-    var toolSegmentIndex: Int = 0 // default is 0 = paint
+    var toolSegmentIndex: Int = 0
     
+    /// Collect the touch information in here
     var touchSamples: [Sample] = []
+    
+    var brushSize: CGSize = CGSize(width: 40, height: 40)
     
     override func didMoveToSuperview() {
 
@@ -47,6 +51,7 @@ class CanvasView: UIView {
         self.addGestureRecognizer(gestureTap)
     }
     
+    /// On double tap, restore the image
     @objc func restoreImage() {
         
         self.image = UIImage(named: "tiger")
@@ -111,11 +116,10 @@ class CanvasView: UIView {
     }
     */
     
-    var brushSize: CGSize = CGSize(width: 40, height: 40)
-    
-    // When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
-    // So the uiimage drawingImage serves as our backbuffer.
-    // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
+    /// This ensures the UIImage keeps updating the canvasView's backing layer by drawing itself into it at every change
+    /// When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
+    /// So the uiimage drawingImage serves as our backbuffer.
+    /// UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
     override func draw(_ rect: CGRect) {
 
         // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
