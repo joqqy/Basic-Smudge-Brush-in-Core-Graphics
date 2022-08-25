@@ -9,3 +9,5 @@
 ## The UIImage draws itself into the context as to update each change.
 
 To implement a production code, you would use the same basic logic (there are no rules, just do whatever fits your needs), but implement it in Metal (or any other framework that takes advantage of the GPU).
+
+![Alt text](appscreen.jpg?raw=true "App Screen")"
