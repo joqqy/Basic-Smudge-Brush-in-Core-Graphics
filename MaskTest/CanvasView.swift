@@ -11,6 +11,7 @@ import UIKit
 struct Sample {
     
     var pos: CGPoint = .zero
+    var force: CGFloat = 1.0
 }
 
 class CanvaView: UIView {
@@ -97,7 +98,7 @@ class CanvaView: UIView {
     }
     */
     
-    var brushSize: CGSize = CGSize(width: 256, height: 256)
+    var brushSize: CGSize = CGSize(width: 100, height: 100)
     
     // When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
     // So the uiimage drawingImage serves as our backbuffer.
@@ -229,6 +230,9 @@ class CanvaView: UIView {
             let ctx = context.cgContext
             
             for touchSample in self.touchSamples {
+                
+                let brushSize = CGSize(width: brushSize.width * touchSample.force,
+                                       height: brushSize.height * touchSample.force)
 
                 // If the mask is an image, then white areas are opaque, and black areas are transparent
                 // If the mas is a mask, white areas are transparent and black areas opaque.
@@ -264,7 +268,7 @@ class CanvaView: UIView {
                                         y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
 
                         // Draw
-                        ctx.setAlpha(0.2)
+                        ctx.setAlpha(1.0 * touchSample.force)
                         ctx.setBlendMode(.normal)
                         ctx.draw(masked, in: rect)
                         
@@ -446,6 +450,9 @@ class CanvaView: UIView {
         
         var sample = Sample()
         sample.pos = touch.location(in: self)
+        if touch.force > 0 {
+            sample.force = touch.force
+        }
         
         self.touchSamples.append(sample)
     }
