@@ -314,7 +314,12 @@ class CanvasView: UIView {
             let ctx: CGContext = context.cgContext
             
             // Inside the point loop, we will continuously add rects, for a final rect encompassing all points, for the setneedsdisplay(rect) call at the end
-            var unionRect: CGRect = CGRect(x: 0, y: 0, width: 1, height: 1)
+            
+            guard let first = touchSamples.first else { return }
+            var unionRect: CGRect = CGRect(x: first.previousPos.x * UIScreen.main.scale,
+                                           y: first.previousPos.y * UIScreen.main.scale,
+                                           width: brushSize.width,
+                                           height: brushSize.height)
             
             for touchSample in self.touchSamples {
                 
@@ -333,16 +338,14 @@ class CanvasView: UIView {
                 let radiusY = brushSize.height/2.0
                 let previousPos: CGPoint = CGPoint(x: touchSample.previousPos.x * UIScreen.main.scale - radiusX,
                                                    y: touchSample.previousPos.y * UIScreen.main.scale - radiusY)
-                let rect: CGRect = CGRect(origin: previousPos, size: brushSize)
-                
-                unionRect = unionRect.union(rect)
+                let copyFromContextRect: CGRect = CGRect(origin: previousPos, size: brushSize)
                 
                 //------------------------------------------------------------------------
                 // Copy an image from the current context, we get a CGImage. Crop it to desired size and location
                 //------------------------------------------------------------------------
                 
                 //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
-                let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
+                let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: copyFromContextRect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
                 
                 //------------------------------------------------------------------------
                 // Apply a mask to the copied image
@@ -373,8 +376,6 @@ class CanvasView: UIView {
                     // Transform the context with respect to the touch position
                     ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
                                     y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
-
-                    
                     
                     
                     //------------------------------------------------------------------------
@@ -391,6 +392,13 @@ class CanvasView: UIView {
                     let rect: CGRect = CGRect(origin: .zero, size: brushSize)
                     // Draw
                     ctx.draw(masked, in: rect)
+                    
+                    
+                    let _rect = CGRect(x: touchSample.pos.x - brushSize.width/2.0,
+                                       y: touchSample.pos.y - brushSize.height/2.0,
+                                       width: brushSize.width,
+                                       height: brushSize.height)
+                    unionRect = unionRect.union(_rect)
                     
                     /*
                     ctx.setStrokeColor(UIColor.lightGray.cgColor)
@@ -419,6 +427,13 @@ class CanvasView: UIView {
             self.image?.draw(in: bounds)
             
             let ctx: CGContext = context.cgContext
+            
+            guard let first = touchSamples.first else { return }
+            var unionRect: CGRect = CGRect(x: first.pos.x * UIScreen.main.scale,
+                                           y: first.pos.y * UIScreen.main.scale,
+                                           width: 1,
+                                           height: 1)
+
             
             for touchSample in self.touchSamples {
                 
@@ -451,7 +466,10 @@ class CanvasView: UIView {
                                     y: touchSample.pos.y - brushSize.height/2.0)
 
                     
-                    
+                    unionRect = unionRect.union(CGRect(x: touchSample.pos.x - brushSize.width/2.0,
+                                                       y: touchSample.pos.y - brushSize.height/2.0,
+                                                       width: brushSize.width,
+                                                       height: brushSize.height))
                     
                     //------------------------------------------------------------------------
                     // Set some drawing settings for the context
@@ -482,7 +500,7 @@ class CanvasView: UIView {
                 }
             }
             
-            self.setNeedsDisplay()
+            self.setNeedsDisplay(unionRect)
         }
     }
     
