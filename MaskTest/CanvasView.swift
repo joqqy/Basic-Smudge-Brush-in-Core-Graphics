@@ -38,6 +38,8 @@ class CanvasView: UIView {
     override func didMoveToSuperview() {
 
         self.backgroundColor = .lightGray
+        
+        self.layer.drawsAsynchronously = true
 
         //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
         //layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
