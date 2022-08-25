@@ -182,13 +182,13 @@ class CanvaView: UIView {
                             // Save context state
                             ctx.saveGState()
                             
-//                            // Flip the context so that the coordinates match the default coordinate system of UIKit
-//                            // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-//                            ctx.translateBy(x: 0, y: self.bounds.size.height)
-//                            ctx.scaleBy(x: 1, y: -1)
+                            // Flip the context so that the coordinates match the default coordinate system of UIKit
+                            // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+                            ctx.translateBy(x: 0, y: self.bounds.size.height)
+                            ctx.scaleBy(x: 1, y: -1)
 
                             ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
-                                            y: touchSample.pos.y - brushSize.height/2.0)
+                                            y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
 
                             // Draw
                             ctx.setAlpha(1.0)
