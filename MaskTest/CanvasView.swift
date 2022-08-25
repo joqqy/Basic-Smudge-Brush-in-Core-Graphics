@@ -313,6 +313,9 @@ class CanvasView: UIView {
             
             let ctx: CGContext = context.cgContext
             
+            // Inside the point loop, we will continuously add rects, for a final rect encompassing all points, for the setneedsdisplay(rect) call at the end
+            var unionRect: CGRect = CGRect(x: 0, y: 0, width: 1, height: 1)
+            
             for touchSample in self.touchSamples {
                 
                 let brushSize = CGSize(width: brushSize.width * min(touchSample.force, 1.5),
@@ -331,6 +334,8 @@ class CanvasView: UIView {
                 let previousPos: CGPoint = CGPoint(x: touchSample.previousPos.x * UIScreen.main.scale - radiusX,
                                                    y: touchSample.previousPos.y * UIScreen.main.scale - radiusY)
                 let rect: CGRect = CGRect(origin: previousPos, size: brushSize)
+                
+                unionRect = unionRect.union(rect)
                 
                 //------------------------------------------------------------------------
                 // Copy an image from the current context, we get a CGImage. Crop it to desired size and location
@@ -401,7 +406,7 @@ class CanvasView: UIView {
                 }
             }
             
-            self.setNeedsDisplay()
+            self.setNeedsDisplay(unionRect)
         }
     }
     func paint() {
