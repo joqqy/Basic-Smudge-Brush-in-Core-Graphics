@@ -19,8 +19,8 @@ class CanvaView: UIView {
     
     override func didMoveToSuperview() {
         
-        self.backgroundColor = .white
-        
+        self.backgroundColor = .lightGray
+
         //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
         //layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
         
@@ -112,6 +112,21 @@ class CanvaView: UIView {
                 
                 if let cg: CGImage = self.image?.cgImage,
                    let size: CGSize = self.image?.size {
+                    
+                    for row in 0 ..< 10 {
+                        for col in 0 ..< 10 {
+                            if (row + col) % 2 == 0 {
+                                
+                                ctx.setFillColor(UIColor.black.cgColor)
+                                ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                                
+                            } else {
+                                
+                                ctx.setFillColor(UIColor.white.cgColor)
+                                ctx.fill(CGRect(x: col * 64, y: row * 64, width: 64, height: 64))
+                            }
+                        }
+                    }
 
                     // If the mask is an image, then white areas are opaque, and black areas are transparent
                     // If the mas is a mask, white areas are transparent and black areas opaque.
@@ -120,7 +135,7 @@ class CanvaView: UIView {
                     
                     let rect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
 //                    let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
-                    let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, nothing draws, it is empty???? does it really copy the current context?
+                    let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: rect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
 
                     if let cgCopy: CGImage = cgCopy,
                        let mask: CGImage = UIImage(named: "tigermask_1_S")?.cgImage {
@@ -139,13 +154,13 @@ class CanvaView: UIView {
 
                             // Flip the context so that the coordinates match the default coordinate system of UIKit
                             // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-                            ctx.translateBy(x: 0, y: size.width)
-                            ctx.scaleBy(x: 1, y: -1)
+                            ctx.translateBy(x: 0 + 700, y: size.width + 50)
+//                            ctx.scaleBy(x: 1, y: -1)
 
                             // Draw
                             ctx.setAlpha(1.0)
                             ctx.setBlendMode(.normal)
-                            ctx.draw(cg, in: rect)
+                            ctx.draw(masked, in: rect)
 
                             // Restore context state
                             ctx.restoreGState()
