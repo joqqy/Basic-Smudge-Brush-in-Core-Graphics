@@ -16,11 +16,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="N2h-5w-KNe">
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="N2h-5w-KNe">
                                 <rect key="frame" x="514" y="919" width="338" height="32"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="31" id="EMk-tE-c7t"/>
+                                    <constraint firstAttribute="width" constant="338" id="UBr-Pc-qkf"/>
+                                </constraints>
                                 <segments>
-                                    <segment title="Generate CheckerBoard"/>
+                                    <segment title="Paint"/>
                                     <segment title="Smudge"/>
                                 </segments>
                                 <connections>
