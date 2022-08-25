@@ -16,7 +16,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="N2h-5w-KNe">
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="N2h-5w-KNe">
                                 <rect key="frame" x="514" y="919" width="338" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="31" id="EMk-tE-c7t"/>
@@ -33,6 +33,10 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="N2h-5w-KNe" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="899" id="WJ1-SI-2qA"/>
+                            <constraint firstItem="N2h-5w-KNe" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="o6s-nq-T6B"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="toolSwitch" destination="N2h-5w-KNe" id="nEU-e6-Pk3"/>
