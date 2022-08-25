@@ -10,6 +10,7 @@ import UIKit
 
 struct Sample {
     
+    var previousPos: CGPoint = .zero
     var pos: CGPoint = .zero
     var force: CGFloat = 1.0
 }
@@ -218,7 +219,7 @@ class CanvasView: UIView {
     }
     */
     
-    func _draw() {
+    func smudge() {
         
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
 
@@ -240,10 +241,13 @@ class CanvasView: UIView {
                 
                 //------------------------------------------------------------------------
                 // Calculate the rect we want to copy from the current context (we will use this rect for CGContext.makeImage().cropping8to: rect)
+                // FIXME: Logic tells me this should be previousPos, but it does not work well.
                 //------------------------------------------------------------------------
-                let pos: CGPoint = CGPoint(x: touchSample.pos.x * UIScreen.main.scale - brushSize.width/2.0,
-                                           y: touchSample.pos.y * UIScreen.main.scale  - brushSize.height/2.0)
-                let rect: CGRect = CGRect(origin: pos, size: brushSize)
+                let radiusX = brushSize.width/2.0
+                let radiusY = brushSize.height/2.0
+                let previousPos: CGPoint = CGPoint(x: touchSample.pos.x * UIScreen.main.scale - radiusX,
+                                                   y: touchSample.pos.y * UIScreen.main.scale - radiusY)
+                let rect: CGRect = CGRect(origin: previousPos, size: brushSize)
                 
                 //------------------------------------------------------------------------
                 // Copy an image from the current context, we get a CGImage. Crop it to desired size and location
@@ -444,7 +448,8 @@ class CanvasView: UIView {
         guard let touch: UITouch = touches.first else { return }
         
         addSample(touch)
-        
+        // Call the drawing
+        self.smudge()
         
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
@@ -457,7 +462,7 @@ class CanvasView: UIView {
         
         addSample(touch)
         // Call the drawing
-        self._draw()
+        self.smudge()
         
         let pos = touch.location(in: self)
         if let foundView = self.viewWithTag(0xDEADBEEF) {
@@ -472,7 +477,10 @@ class CanvasView: UIView {
     func addSample(_ touch: UITouch) -> Void {
         
         var sample = Sample()
+        
+        sample.previousPos = touch.previousLocation(in: self)
         sample.pos = touch.location(in: self)
+        
         if touch.force > 0 {
             sample.force = touch.force
         }
