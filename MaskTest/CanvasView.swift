@@ -111,7 +111,7 @@ class CanvasView: UIView {
     }
     */
     
-    var brushSize: CGSize = CGSize(width: 100, height: 100)
+    var brushSize: CGSize = CGSize(width: 50, height: 50)
     
     // When we call setNeedsDisplay, this draw() is called, which draws the uiimage we have been painting into, into the views screen buffer.
     // So the uiimage drawingImage serves as our backbuffer.
@@ -303,7 +303,7 @@ class CanvasView: UIView {
                     // Set some drawing settings for the context
                     //------------------------------------------------------------------------
                     // Draw
-                    let alphaConstantFactor: CGFloat = 0.3
+                    let alphaConstantFactor: CGFloat = 0.1
                     ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
                     ctx.setBlendMode(.normal)
                     
