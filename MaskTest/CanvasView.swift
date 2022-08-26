@@ -396,6 +396,8 @@ class CanvasView: UIView {
     }
     func smudge() {
         
+        guard self.touchSamples.count > 0 else { return }
+        
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
 
         self.image = renderer.image { context in
@@ -414,7 +416,11 @@ class CanvasView: UIView {
                                            width: brushSize.width,
                                            height: brushSize.height)
             
-            for touchSample in self.touchSamples {
+//            for touchSample in self.touchSamples {
+            
+            for i in 1 ..< self.touchSamples.count {
+                
+                let touchSample = self.touchSamples[i]
                 
                 let brushSize = CGSize(width: brushSize.width,
                                        height: brushSize.height)
@@ -476,7 +482,7 @@ class CanvasView: UIView {
                     //------------------------------------------------------------------------
                     // Draw
                     let alphaConstantFactor: CGFloat = 0.1
-                    ctx.setAlpha(min(touchSample.force * alphaConstantFactor, 1.0))
+                    ctx.setAlpha(touchSample.force * alphaConstantFactor)
                     ctx.setBlendMode(.normal)
                     //------------------------------------------------------------------------
                     // Draw into the context
@@ -677,6 +683,7 @@ class CanvasView: UIView {
                                          height:/* min(touchSamples.last!.force, 1.2) * */self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
         
+        // A simple lerp between a pair of touch positions (we want to fill the empty space with positions as to narrow the spoacing between them)
         if self.doInterpolate || self.toolSegmentIndex == 0 {
             
             let spacing: CGFloat = (self.toolSegmentIndex == 0) ? 1 : self.smudgeSpacing
