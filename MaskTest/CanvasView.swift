@@ -20,6 +20,7 @@ class CanvasView: UIView {
     /// Will receive continues pixel data from CanvasView backing layer
     var imageView: UIImageView!
     var outlineView: UIImageView!
+    var currentImageName: String = "colorbar"
     
     /// We draw into this and then this draws itself into the backing layer
     var image: UIImage?
@@ -44,7 +45,7 @@ class CanvasView: UIView {
         //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
         //layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
         
-        self.image = UIImage(named: "colorbar")
+        self.image = UIImage(named: currentImageName)
         
         self.brushImage = UIImage(named: "brush1")?.withRenderingMode(.alwaysTemplate)
         self.brushImage = self.brushImage?.withTintColor(.red)
@@ -101,7 +102,7 @@ class CanvasView: UIView {
     /// On double tap, restore the image
     @objc func restoreImage() {
         
-        self.image = UIImage(named: "tiger")
+        self.image = UIImage(named: currentImageName)
         self.touchSamples.removeAll()
         self.setNeedsDisplay()
     }
@@ -743,11 +744,11 @@ class CanvasView: UIView {
         sample.previousPos = touch.previousLocation(in: self)
         sample.pos = touch.location(in: self)
         
-//        if touch.force > 0 {
-//            sample.force = touch.force
-//        } else {
+        if touch.force > 0 {
+            sample.force = touch.force
+        } else {
             sample.force = 1.0
-//        }
+        }
         
         self.touchSamples.append(sample)
     }
