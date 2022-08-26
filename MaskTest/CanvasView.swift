@@ -44,7 +44,7 @@ class CanvasView: UIView {
         //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
         //layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
         
-        self.image = UIImage(named: "tiger")
+        self.image = UIImage(named: "colorbar")
         
         self.brushImage = UIImage(named: "brush1")?.withRenderingMode(.alwaysTemplate)
         self.brushImage = self.brushImage?.withTintColor(.red)
@@ -302,6 +302,92 @@ class CanvasView: UIView {
         self.image?.draw(in: rect)
     }
     
+    func paint() {
+        
+        let renderer = UIGraphicsImageRenderer(size: bounds.size)
+
+        self.image = renderer.image { context in
+            
+            // Draw current state of the image into the context
+            self.image?.draw(in: bounds)
+            
+            let ctx: CGContext = context.cgContext
+            
+            guard let first = touchSamples.first else { return }
+            var unionRect: CGRect = CGRect(x: first.pos.x * UIScreen.main.scale,
+                                           y: first.pos.y * UIScreen.main.scale,
+                                           width: 1,
+                                           height: 1)
+
+            
+            for touchSample in self.touchSamples {
+                
+                //------------------------------------------------------------------------
+                // Apply a mask to the copied image
+                //------------------------------------------------------------------------
+                if let brush: CGImage = self.brushImage?.cgImage {
+                        
+                    // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
+                    // So no need to realese the mask in Swift, it is all handled by ARC
+
+
+                    //------------------------------------------------------------------------
+                    // Save the context state and all subsuquent changes
+                    //------------------------------------------------------------------------
+                    ctx.saveGState()
+                    
+                    
+                    
+                    //------------------------------------------------------------------------
+                    // Transform the coordinates of the context
+                    //------------------------------------------------------------------------
+                    // Flip the context so that the coordinates match the default coordinate system of UIKit
+                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+//                    ctx.translateBy(x: 0, y: self.bounds.size.height)
+//                    ctx.scaleBy(x: 1, y: -1)
+
+                    // Transform the context with respect to the touch position
+                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
+                                    y: touchSample.pos.y - brushSize.height/2.0)
+
+                    
+                    unionRect = unionRect.union(CGRect(x: touchSample.pos.x - brushSize.width/2.0,
+                                                       y: touchSample.pos.y - brushSize.height/2.0,
+                                                       width: brushSize.width,
+                                                       height: brushSize.height))
+                    
+                    //------------------------------------------------------------------------
+                    // Set some drawing settings for the context
+                    //------------------------------------------------------------------------
+                    // Draw
+                    let alphaConstantFactor: CGFloat = 0.5
+                    ctx.setAlpha(max(min(touchSample.force * alphaConstantFactor, 1.0), 0.2) * 0.5)
+                    ctx.setBlendMode(.normal)
+                    //------------------------------------------------------------------------
+                    // Draw into the context
+                    //------------------------------------------------------------------------
+                    // Set size of the copied image we want to draw into the contex
+                    let rect: CGRect = CGRect(origin: .zero, size: brushSize)
+                    // Draw
+                    ctx.draw(brush, in: rect)
+                    
+                    /*
+                    ctx.setStrokeColor(UIColor.lightGray.cgColor)
+                    ctx.setLineWidth(2)
+                    ctx.addEllipse(in: rect)
+                    ctx.drawPath(using: .stroke)
+                    */
+                    
+                    //------------------------------------------------------------------------
+                    // Restore the context
+                    //------------------------------------------------------------------------
+                    ctx.restoreGState()
+                }
+            }
+            
+            self.setNeedsDisplay(unionRect)
+        }
+    }
     func smudge() {
         
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
@@ -399,92 +485,6 @@ class CanvasView: UIView {
                                        width: brushSize.width,
                                        height: brushSize.height)
                     unionRect = unionRect.union(_rect)
-                    
-                    /*
-                    ctx.setStrokeColor(UIColor.lightGray.cgColor)
-                    ctx.setLineWidth(2)
-                    ctx.addEllipse(in: rect)
-                    ctx.drawPath(using: .stroke)
-                    */
-                    
-                    //------------------------------------------------------------------------
-                    // Restore the context
-                    //------------------------------------------------------------------------
-                    ctx.restoreGState()
-                }
-            }
-            
-            self.setNeedsDisplay(unionRect)
-        }
-    }
-    func paint() {
-        
-        let renderer = UIGraphicsImageRenderer(size: bounds.size)
-
-        self.image = renderer.image { context in
-            
-            // Draw current state of the image into the context
-            self.image?.draw(in: bounds)
-            
-            let ctx: CGContext = context.cgContext
-            
-            guard let first = touchSamples.first else { return }
-            var unionRect: CGRect = CGRect(x: first.pos.x * UIScreen.main.scale,
-                                           y: first.pos.y * UIScreen.main.scale,
-                                           width: 1,
-                                           height: 1)
-
-            
-            for touchSample in self.touchSamples {
-                
-                //------------------------------------------------------------------------
-                // Apply a mask to the copied image
-                //------------------------------------------------------------------------
-                if let brush: CGImage = self.brushImage?.cgImage {
-                        
-                    // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
-                    // So no need to realese the mask in Swift, it is all handled by ARC
-
-
-                    //------------------------------------------------------------------------
-                    // Save the context state and all subsuquent changes
-                    //------------------------------------------------------------------------
-                    ctx.saveGState()
-                    
-                    
-                    
-                    //------------------------------------------------------------------------
-                    // Transform the coordinates of the context
-                    //------------------------------------------------------------------------
-                    // Flip the context so that the coordinates match the default coordinate system of UIKit
-                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
-//                    ctx.translateBy(x: 0, y: self.bounds.size.height)
-//                    ctx.scaleBy(x: 1, y: -1)
-
-                    // Transform the context with respect to the touch position
-                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
-                                    y: touchSample.pos.y - brushSize.height/2.0)
-
-                    
-                    unionRect = unionRect.union(CGRect(x: touchSample.pos.x - brushSize.width/2.0,
-                                                       y: touchSample.pos.y - brushSize.height/2.0,
-                                                       width: brushSize.width,
-                                                       height: brushSize.height))
-                    
-                    //------------------------------------------------------------------------
-                    // Set some drawing settings for the context
-                    //------------------------------------------------------------------------
-                    // Draw
-                    let alphaConstantFactor: CGFloat = 0.5
-                    ctx.setAlpha(max(min(touchSample.force * alphaConstantFactor, 1.0), 0.2) * 0.5)
-                    ctx.setBlendMode(.normal)
-                    //------------------------------------------------------------------------
-                    // Draw into the context
-                    //------------------------------------------------------------------------
-                    // Set size of the copied image we want to draw into the contex
-                    let rect: CGRect = CGRect(origin: .zero, size: brushSize)
-                    // Draw
-                    ctx.draw(brush, in: rect)
                     
                     /*
                     ctx.setStrokeColor(UIColor.lightGray.cgColor)
@@ -743,11 +743,11 @@ class CanvasView: UIView {
         sample.previousPos = touch.previousLocation(in: self)
         sample.pos = touch.location(in: self)
         
-        if touch.force > 0 {
-            sample.force = touch.force
-        } else {
+//        if touch.force > 0 {
+//            sample.force = touch.force
+//        } else {
             sample.force = 1.0
-        }
+//        }
         
         self.touchSamples.append(sample)
     }
