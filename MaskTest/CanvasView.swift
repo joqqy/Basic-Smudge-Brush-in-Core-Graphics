@@ -28,6 +28,7 @@ class CanvasView: UIView {
         static let mask_1_S_v3: String = "mask_1_S_v3"
         static let mask_1_S_v4: String = "mask_1_S_v4"
         static let mask_1_S_v5: String = "mask_1_S_v5"
+        static let mask_1_S_v6: String = "mask_1_S_v6"
         static let mask: String = "mask_S"
     }
     
@@ -465,7 +466,7 @@ class CanvasView: UIView {
                 // Apply a mask to the copied image
                 //------------------------------------------------------------------------
                 if let cgCopy: CGImage = cgCopy,
-                   let mask: CGImage = UIImage(named: ImageNames.mask_1_S_v5)?.cgImage,
+                   let mask: CGImage = UIImage(named: ImageNames.mask_1_S_v6)?.cgImage,
                    let masked: CGImage = cgCopy.masking(mask) {
                         
                     // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
