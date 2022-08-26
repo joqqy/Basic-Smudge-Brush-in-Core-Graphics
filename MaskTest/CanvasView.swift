@@ -55,8 +55,10 @@ class CanvasView: UIView {
         //drawCheckerBoard() // This draws a checkerboard into UIImage, and we set that image to imageView.image and then add the imageView as a subview
         //layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
         
+        // Starting painting image
         self.image = UIImage(named: currentImageName)
         
+        // Brush image for painting tool
         self.brushImage = UIImage(named: ImageNames.brush1)?.withRenderingMode(.alwaysTemplate)
         self.brushImage = self.brushImage?.withTintColor(.red)
                 
@@ -80,7 +82,7 @@ class CanvasView: UIView {
         //drawMask_With_CIImage(at: pos)
         
         // Double tap to clear the image view
-        let gestureTap = UITapGestureRecognizer(target: self, action: #selector(restoreImage))
+        let gestureTap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(restoreImage))
         gestureTap.allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
         gestureTap.numberOfTapsRequired = 2
         self.addGestureRecognizer(gestureTap)
@@ -91,10 +93,10 @@ class CanvasView: UIView {
     func createBrushOutline() {
         
         self.outlineView = UIImageView(frame: CGRect(origin: .zero, size: brushSize))
-        let renderer = UIGraphicsImageRenderer(size: self.outlineView.bounds.size)
-        let img = renderer.image { context in
+        let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: self.outlineView.bounds.size)
+        let img: UIImage = renderer.image { context in
             
-            let ctx = context.cgContext
+            let ctx: CGContext = context.cgContext
             
             ctx.setStrokeColor(UIColor.lightGray.cgColor)
             ctx.setLineWidth(1)
@@ -317,7 +319,7 @@ class CanvasView: UIView {
         
         guard self.touchSamples.count > 0 else { return }
         
-        let renderer = UIGraphicsImageRenderer(size: bounds.size)
+        let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: bounds.size)
 
         self.image = renderer.image { context in
             
@@ -326,7 +328,7 @@ class CanvasView: UIView {
             
             let ctx: CGContext = context.cgContext
             
-            guard let first = touchSamples.first else { return }
+            guard let first: Sample = touchSamples.first else { return }
             var unionRect: CGRect = CGRect(x: first.pos.x * UIScreen.main.scale,
                                            y: first.pos.y * UIScreen.main.scale,
                                            width: 1,
@@ -408,7 +410,7 @@ class CanvasView: UIView {
         
         guard self.touchSamples.count > 0 else { return }
         
-        let renderer = UIGraphicsImageRenderer(size: bounds.size)
+        let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: bounds.size)
 
         self.image = renderer.image { context in
             
@@ -419,7 +421,7 @@ class CanvasView: UIView {
             
             // Inside the point loop, we will continuously add rects, for a final rect encompassing all points, for the setneedsdisplay(rect) call at the end
             
-            guard let first = touchSamples.first else { return }
+            guard let first: Sample = touchSamples.first else { return }
             // Start of the unionRect at the first touch position rect (then later this unionrect will be expanded as needed starting from this starting rect).
             var unionRect: CGRect = CGRect(x: first.previousPos.x * UIScreen.main.scale,
                                            y: first.previousPos.y * UIScreen.main.scale,
@@ -430,10 +432,9 @@ class CanvasView: UIView {
             
             for i in 1 ..< self.touchSamples.count {
                 
-                let touchSample = self.touchSamples[i]
+                let touchSample: Sample = self.touchSamples[i]
                 
-                let brushSize = CGSize(width: brushSize.width,
-                                       height: brushSize.height)
+                let brushSize: CGSize = CGSize(width: brushSize.width, height: brushSize.height)
 
                 // If the mask is an image, then white areas are opaque, and black areas are transparent
                 // If the mas is a mask, white areas are transparent and black areas opaque.
@@ -443,8 +444,8 @@ class CanvasView: UIView {
                 // Calculate the rect we want to copy from the current context (we will use this rect for CGContext.makeImage().cropping8to: rect)
                 // The principal method is we copy the context from the previous touch pos, then copy that over to the current touch pos(later down as we draw it on the context)
                 //------------------------------------------------------------------------
-                let radiusX = brushSize.width/2.0
-                let radiusY = brushSize.height/2.0
+                let radiusX: CGFloat = brushSize.width/2.0
+                let radiusY: CGFloat = brushSize.height/2.0
                 let previousPos: CGPoint = CGPoint(x: touchSample.previousPos.x * UIScreen.main.scale - radiusX,
                                                    y: touchSample.previousPos.y * UIScreen.main.scale - radiusY)
                 let copyFromContextRect: CGRect = CGRect(origin: previousPos, size: brushSize)
@@ -763,7 +764,7 @@ class CanvasView: UIView {
     }
     func addSample(_ touch: UITouch) -> Void {
         
-        var sample = Sample()
+        var sample: Sample = Sample()
         
         sample.previousPos = touch.previousLocation(in: self)
         sample.pos = touch.location(in: self)
@@ -782,7 +783,7 @@ extension CanvasView {
     
     func drawCheckerBoard() {
         
-        let renderer = UIGraphicsImageRenderer(size: self.bounds.size)
+        let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: self.bounds.size)
         
         let img: UIImage = renderer.image { ctx in
             
