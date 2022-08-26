@@ -32,9 +32,10 @@ class CanvasView: UIView {
     var touchSamples: [Sample] = []
     /// Spacing for line segments
     var kBrushPixelStep: CGFloat = 10.0
+    var trimTolerance: Int = 20
     var doInterpolate: Bool = true // :false, true is very slow
     
-    var brushSize: CGSize = CGSize(width: 80, height: 80)
+    var brushSize: CGSize = CGSize(width: 10, height: 10)
     
     override func didMoveToSuperview() {
 
@@ -47,7 +48,7 @@ class CanvasView: UIView {
         
         self.image = UIImage(named: currentImageName)
         
-        self.brushImage = UIImage(named: "brush1")?.withRenderingMode(.alwaysTemplate)
+        self.brushImage = UIImage(named: "roundSoft1")?.withRenderingMode(.alwaysTemplate)
         self.brushImage = self.brushImage?.withTintColor(.red)
                 
         // We can scale the image by setting the rect appropriately instead in the context.draw() instead
@@ -305,6 +306,8 @@ class CanvasView: UIView {
     
     func paint() {
         
+        guard self.touchSamples.count > 0 else { return }
+        
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
 
         self.image = renderer.image { context in
@@ -321,7 +324,10 @@ class CanvasView: UIView {
                                            height: 1)
 
             
-            for touchSample in self.touchSamples {
+//            for touchSample in self.touchSamples {
+            for i in 1 ..< self.touchSamples.count {
+                
+                let touchSample = self.touchSamples[i]
                 
                 //------------------------------------------------------------------------
                 // Apply a mask to the copied image
@@ -361,8 +367,8 @@ class CanvasView: UIView {
                     // Set some drawing settings for the context
                     //------------------------------------------------------------------------
                     // Draw
-                    let alphaConstantFactor: CGFloat = 0.5
-                    ctx.setAlpha(max(min(touchSample.force * alphaConstantFactor, 1.0), 0.2) * 0.5)
+                    let alphaConstantFactor: CGFloat = 0.1
+                    ctx.setAlpha(touchSample.force * alphaConstantFactor)
                     ctx.setBlendMode(.normal)
                     //------------------------------------------------------------------------
                     // Draw into the context
@@ -674,6 +680,8 @@ class CanvasView: UIView {
         
         if self.doInterpolate || self.toolSegmentIndex == 0 {
             
+            let spacing: CGFloat = (self.toolSegmentIndex == 0) ? 1 : self.kBrushPixelStep
+            
             var spacingCount: Int = 0
             
             if self.touchSamples.count > 1 {
@@ -693,7 +701,7 @@ class CanvasView: UIView {
                     let force = (force0 + force1) / 2.0
                     
                     // How many points do we need to distribute between each pair of points to satisfy the option to get n xpixes between each point
-                    spacingCount = max(Int(ceil(CGPoint.length(p0 - p1) / self.kBrushPixelStep)), 1)
+                    spacingCount = max(Int(ceil(CGPoint.length(p0 - p1) / spacing)), 1)
 
                     // Interpolate pos linearly between the two points
                     for n in 0 ..< spacingCount {
@@ -728,14 +736,9 @@ class CanvasView: UIView {
         default:
             break
         }
-        
-        if touchSamples.count > 20 {
-            
-            if let last = touchSamples.last {
-                touchSamples = [last]
-            } else {
-                touchSamples.removeAll()
-            }
+
+        if let last = touchSamples.last {
+            touchSamples = [last]
         }
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
