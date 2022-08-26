@@ -10,5 +10,5 @@ The UIImage draws itself into the context as to update each incremental change.
 
 To implement a production code, you would use the same basic logic (there are no rules, just do whatever fits your needs), but implement it in Metal (or any other framework that takes advantage of the GPU).
 
-![](screenshot2.PNG)
+<img src="screenshot2.PNG width="350"/>
 ![](screenshot3.PNG)
