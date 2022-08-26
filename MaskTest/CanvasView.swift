@@ -403,6 +403,7 @@ class CanvasView: UIView {
             // Inside the point loop, we will continuously add rects, for a final rect encompassing all points, for the setneedsdisplay(rect) call at the end
             
             guard let first = touchSamples.first else { return }
+            // Start of the unionRect at the first touch position rect (then later this unionrect will be expanded as needed starting from this starting rect).
             var unionRect: CGRect = CGRect(x: first.previousPos.x * UIScreen.main.scale,
                                            y: first.previousPos.y * UIScreen.main.scale,
                                            width: brushSize.width,
