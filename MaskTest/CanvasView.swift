@@ -17,10 +17,20 @@ struct Sample {
 
 class CanvasView: UIView {
     
+    struct ImageNames {
+        
+        static let brush1: String = "brush1"
+        static let roundSoft1: String = "roundSoft1"
+        static let colorBar: String = "colorbar"
+        static let tiger: String = "tiger"
+        static let mask_1_S: String = "mask_1_S"
+        static let mask: String = "mask_S"
+    }
+    
     /// Will receive continues pixel data from CanvasView backing layer
     var imageView: UIImageView!
     var outlineView: UIImageView!
-    var currentImageName: String = "colorbar"
+    var currentImageName: String = ImageNames.colorBar
     
     /// We draw into this and then this draws itself into the backing layer
     var image: UIImage?
@@ -34,7 +44,7 @@ class CanvasView: UIView {
     var smudgeSpacing: CGFloat = 5.0 // Should really be = 1.0, but values < ~10 are too slow on Core Graphics/Quartz. We set it to 5 here, which is too slow for production.
     var doInterpolate: Bool = true // :false, true is very slow
     
-    var brushSize: CGSize = CGSize(width: 30, height: 30)
+    var brushSize: CGSize = CGSize(width: 80, height: 80)
     
     override func didMoveToSuperview() {
 
@@ -47,7 +57,7 @@ class CanvasView: UIView {
         
         self.image = UIImage(named: currentImageName)
         
-        self.brushImage = UIImage(named: "brush1")?.withRenderingMode(.alwaysTemplate)
+        self.brushImage = UIImage(named: ImageNames.brush1)?.withRenderingMode(.alwaysTemplate)
         self.brushImage = self.brushImage?.withTintColor(.red)
                 
         // We can scale the image by setting the rect appropriately instead in the context.draw() instead
@@ -450,7 +460,7 @@ class CanvasView: UIView {
                 // Apply a mask to the copied image
                 //------------------------------------------------------------------------
                 if let cgCopy: CGImage = cgCopy,
-                   let mask: CGImage = UIImage(named: "mask_1_S")?.cgImage,
+                   let mask: CGImage = UIImage(named: ImageNames.mask_1_S)?.cgImage,
                    let masked: CGImage = cgCopy.masking(mask) {
                         
                     // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
@@ -529,7 +539,7 @@ class CanvasView: UIView {
             
             let img: UIImage = renderer.image { ctx in
                 
-                if let mask: CGImage = UIImage(named: "tigermask_1_S")?.cgImage {
+                if let mask: CGImage = UIImage(named: ImageNames.mask_1_S)?.cgImage {
                     if let masked: CGImage = cg.masking(mask) {
                         
                         // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
@@ -633,10 +643,6 @@ class CanvasView: UIView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         guard let touch: UITouch = touches.first else { return }
-        
-        if touch.type == .direct && self.toolSegmentIndex == 1 {
-            self.brushSize = CGSize(width: 80, height: 80)
-        }
         
         addSample(touch)
         let pos = touch.location(in: self)
