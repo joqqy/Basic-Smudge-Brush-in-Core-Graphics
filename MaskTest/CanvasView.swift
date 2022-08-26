@@ -31,10 +31,10 @@ class CanvasView: UIView {
     /// Collect the touch information in here
     var touchSamples: [Sample] = []
     /// Spacing for line segments
-    var kBrushPixelStep: CGFloat = 1.0
-    var doInterpolate: Bool = false // :false, true is very slow
+    var kBrushPixelStep: CGFloat = 10.0
+    var doInterpolate: Bool = true // :false, true is very slow
     
-    var brushSize: CGSize = CGSize(width: 30, height: 30)
+    var brushSize: CGSize = CGSize(width: 80, height: 80)
     
     override func didMoveToSuperview() {
 
@@ -411,8 +411,8 @@ class CanvasView: UIView {
             
             for touchSample in self.touchSamples {
                 
-                let brushSize = CGSize(width: brushSize.width * min(touchSample.force, 1.5),
-                                       height: brushSize.height * min(touchSample.force, 1.5))
+                let brushSize = CGSize(width: brushSize.width,
+                                       height: brushSize.height)
 
                 // If the mask is an image, then white areas are opaque, and black areas are transparent
                 // If the mas is a mask, white areas are transparent and black areas opaque.
@@ -636,8 +636,8 @@ class CanvasView: UIView {
         
         self.outlineView.bounds = CGRect(x: 0,
                                          y: 0,
-                                         width: min(touchSamples.last!.force, 1.2) * self.brushSize.width,
-                                         height: min(touchSamples.last!.force, 1.2) * self.brushSize.height).insetBy(dx: 5, dy: 5)
+                                         width:/* min(touchSamples.last!.force, 1.2) * */self.brushSize.width,
+                                         height:/* min(touchSamples.last!.force, 1.2) * */self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
         
         // Call the tool
@@ -668,8 +668,8 @@ class CanvasView: UIView {
         }
         self.outlineView.bounds = CGRect(x: 0,
                                          y: 0,
-                                         width: min(touchSamples.last!.force, 1.2) * self.brushSize.width,
-                                         height: min(touchSamples.last!.force, 1.2) * self.brushSize.height).insetBy(dx: 5, dy: 5)
+                                         width:/* min(touchSamples.last!.force, 1.2) * */self.brushSize.width,
+                                         height:/* min(touchSamples.last!.force, 1.2) * */self.brushSize.height).insetBy(dx: 5, dy: 5)
         self.outlineView.center = pos
         
         if self.doInterpolate || self.toolSegmentIndex == 0 {
@@ -729,14 +729,21 @@ class CanvasView: UIView {
             break
         }
         
+        if touchSamples.count > 20 {
+            
+            if let last = touchSamples.last {
+                touchSamples = [last]
+            } else {
+                touchSamples.removeAll()
+            }
+        }
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         self.outlineView.transform = CGAffineTransform.identity
         self.touchSamples.removeAll()
         self.outlineView.removeFromSuperview()
-        
-        self.brushSize = CGSize(width: 30, height: 30)
+
     }
     func addSample(_ touch: UITouch) -> Void {
         
