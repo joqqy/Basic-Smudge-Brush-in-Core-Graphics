@@ -31,11 +31,10 @@ class CanvasView: UIView {
     /// Collect the touch information in here
     var touchSamples: [Sample] = []
     /// Spacing for line segments
-    var kBrushPixelStep: CGFloat = 10.0
-    var trimTolerance: Int = 20
+    var smudgeSpacing: CGFloat = 5.0 // Should really be = 1.0, but values < ~10 are too slow on Core Graphics/Quartz. We set it to 5 here, which is too slow for production.
     var doInterpolate: Bool = true // :false, true is very slow
     
-    var brushSize: CGSize = CGSize(width: 10, height: 10)
+    var brushSize: CGSize = CGSize(width: 30, height: 30)
     
     override func didMoveToSuperview() {
 
@@ -48,7 +47,7 @@ class CanvasView: UIView {
         
         self.image = UIImage(named: currentImageName)
         
-        self.brushImage = UIImage(named: "roundSoft1")?.withRenderingMode(.alwaysTemplate)
+        self.brushImage = UIImage(named: "brush1")?.withRenderingMode(.alwaysTemplate)
         self.brushImage = self.brushImage?.withTintColor(.red)
                 
         // We can scale the image by setting the rect appropriately instead in the context.draw() instead
@@ -680,7 +679,7 @@ class CanvasView: UIView {
         
         if self.doInterpolate || self.toolSegmentIndex == 0 {
             
-            let spacing: CGFloat = (self.toolSegmentIndex == 0) ? 1 : self.kBrushPixelStep
+            let spacing: CGFloat = (self.toolSegmentIndex == 0) ? 1 : self.smudgeSpacing
             
             var spacingCount: Int = 0
             
@@ -737,6 +736,7 @@ class CanvasView: UIView {
             break
         }
 
+        // We are only drawing one segment a time, so empty the touch samples array, but keep the last point, because next segment will start from that.
         if let last = touchSamples.last {
             touchSamples = [last]
         }
