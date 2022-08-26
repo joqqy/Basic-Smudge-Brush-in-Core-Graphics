@@ -24,6 +24,9 @@ class CanvasView: UIView {
         static let colorBar: String = "colorbar"
         static let tiger: String = "tiger"
         static let mask_1_S: String = "mask_1_S"
+        static let mask_1_S_v2: String = "mask_1_S_v2"
+        static let mask_1_S_v3: String = "mask_1_S_v3"
+        static let mask_1_S_v4: String = "mask_1_S_v4"
         static let mask: String = "mask_S"
     }
     
@@ -461,7 +464,7 @@ class CanvasView: UIView {
                 // Apply a mask to the copied image
                 //------------------------------------------------------------------------
                 if let cgCopy: CGImage = cgCopy,
-                   let mask: CGImage = UIImage(named: ImageNames.mask_1_S)?.cgImage,
+                   let mask: CGImage = UIImage(named: ImageNames.mask_1_S_v3)?.cgImage,
                    let masked: CGImage = cgCopy.masking(mask) {
                         
                     // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
@@ -492,7 +495,7 @@ class CanvasView: UIView {
                     // Set some drawing settings for the context
                     //------------------------------------------------------------------------
                     // Draw
-                    let alphaConstantFactor: CGFloat = 0.1
+                    let alphaConstantFactor: CGFloat = 0.5
                     ctx.setAlpha(touchSample.force * alphaConstantFactor)
                     ctx.setBlendMode(.normal)
                     //------------------------------------------------------------------------
