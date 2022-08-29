@@ -20,6 +20,7 @@ class CanvasView: UIView {
     struct ImageNames {
         
         static let brush1: String = "brush1"
+        static let graphite1: String = "graphitePattern"
         static let roundSoft1: String = "roundSoft1"
         static let colorBar: String = "colorbar"
         static let tiger: String = "tiger"
