@@ -561,6 +561,10 @@ class CanvasView: UIView {
         
         // Example on how to create a cgColor space manually (not from the cgimage)
         // See https://developer.apple.com/forums/thread/679891
+        // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/csintro/csintro_colorspace/csintro_colorspace.html#//apple_ref/doc/uid/TP30001148-CH222-BBCBDGDD
+        // Quartz 2D programming guide
+        // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/Introduction/Introduction.html#//apple_ref/doc/uid/TP40007533-SW1
+        
         // So it seems the below, is the same as the smudgeBrush colorspace and bitmapInfo data
         let colorSpace: CGColorSpace? = CGColorSpace(name: CGColorSpace.sRGB)
         let bitmapInfo: UInt32 = CGImageAlphaInfo.premultipliedLast.rawValue
