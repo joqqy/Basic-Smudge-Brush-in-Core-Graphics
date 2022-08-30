@@ -535,8 +535,10 @@ class CanvasView: UIView {
         }
     }
     
-    /// Test drawing the brush intrinsic color over the smudge color
+    /// Takes the result of the smudgebrush (a copy of the canvas ROI), blends it with the brush color and returns a resulting CGImage that is a blend between the smudge and the intrinsic color of the brush.
     func createWetBrush(_ smudgeBrush: CGImage, force: CGFloat = 1.0) -> CGImage? {
+        
+        // TODO: preserve the dirty color into the brush, letting the intrinsic color change, rather start out clean (this should be user uption as well)
 
         guard
             let brush: CGImage = brushImage?.cgImage,
@@ -550,34 +552,36 @@ class CanvasView: UIView {
                                           space: smudgeBrush.colorSpace!,
                                           bitmapInfo: smudgeBrush.bitmapInfo.rawValue) {
             
+            // Save state
             ctx.saveGState()
            
-            let rect: CGRect = CGRect(x: 0,
-                                      y: 0,
-                                      width: size.width,
-                                      height: size.height)
+            // Construct the rect
+            let rect: CGRect = CGRect(origin: .zero, size: size)
             
-            // First we draw the smudge color into the context
+            //------------------------------------------------------------------
+            // Draw the smudge color into the context
+            //------------------------------------------------------------------
             ctx.draw(smudgeBrush, in: rect)
             
+            //------------------------------------------------------------------
+            // Draw the brush intrinsic color over the smudge color (with an appropriate alpha)
             // Next we draw that user selected intrinsic brush color into the context
             // TODO: Should vary depending various factors, but deal with that later. The alphi is a bidirectional control and this determines how much the color from the canvas blends with the intrinsic color of the brush. This should vary depending on several factors, e.g. wetness of the paint in the brush, wetness of paint lying on the canvas, user pressure and so on.
-            
+            //------------------------------------------------------------------
             ctx.setAlpha(0.05 * force)
-            
             ctx.draw(brush, in: rect)
             
+            // Restore state
             ctx.restoreGState()
             
+            // The result
             return ctx.makeImage()
         }
         
         return nil
     }
     func wetBrush() {
-        
-        print("wetbrush")
-        
+
         guard self.touchSamples.count > 0 else { return }
         
         let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: bounds.size)
