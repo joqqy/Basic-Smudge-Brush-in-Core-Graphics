@@ -42,6 +42,7 @@ class CanvasView: UIView {
     /// We draw into this and then this draws itself into the backing layer
     var image: UIImage?
     var brushImage: UIImage?
+    var brushColorCanGetDirty: Bool = true
     
     var toolSegmentIndex: Int = 0
     
@@ -568,14 +569,21 @@ class CanvasView: UIView {
             // Next we draw that user selected intrinsic brush color into the context
             // TODO: Should vary depending various factors, but deal with that later. The alphi is a bidirectional control and this determines how much the color from the canvas blends with the intrinsic color of the brush. This should vary depending on several factors, e.g. wetness of the paint in the brush, wetness of paint lying on the canvas, user pressure and so on.
             //------------------------------------------------------------------
-            ctx.setAlpha(0.05 * force)
+            ctx.setAlpha(0.2 * force)
             ctx.draw(brush, in: rect)
             
             // Restore state
             ctx.restoreGState()
             
-            // The result
-            return ctx.makeImage()
+            if let cg: CGImage = ctx.makeImage() {
+                
+                if self.brushColorCanGetDirty {
+                    let im: UIImage = UIImage(cgImage: cg)
+                    self.brushImage = im
+                }
+                
+                return cg
+            }
         }
         
         return nil
