@@ -558,6 +558,21 @@ class CanvasView: UIView {
         //debug
         //print("smudgeBrush.colorSpace: \(smudgeBrush.colorSpace)") // Optional(<CGColorSpace 0x2812d4660> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1))
         //print("smudgeBrush.bitmapInfo: \(smudgeBrush.bitmapInfo)") // CGBitmapInfo(rawValue: 1)
+        print("smudgeBrush.bitsPerComponent: \(smudgeBrush.bitsPerComponent)") // 8
+        print("smudgeBrush.bitsPerPixel: \(smudgeBrush.bitsPerPixel)") // 32
+        print("size: \(size)") // (81.0, 81.0)
+        print("smudgeBrush.bytesPerRow: \(smudgeBrush.bytesPerRow)") // 4096
+        /*
+         On bytesPerRow:
+         
+         Note, tye byters per row(Stride) can be larger than the width of the image. The extra bytes at the end of each row
+         are simply ignored. The butes for the pixel at (x,y) start at offset y * bpr + x * bpp (where bpr is bytes-per-row and bpp is bytes-per-pixel).
+         
+         The CPUs in modern Macs have instructions that operate on 16 or 32 or 64 bytes at a time, so the CGImage algorithms can be more efficient if the image's stride is a multiple of 16 or 32 or 64.
+         CGDisplayCreateImage was weritten by someone who knows this.
+         https://stackoverflow.com/questions/25706397/cgimageref-width-doesnt-agree-with-bytes-per-row
+         */
+        
         
         // Example on how to create a cgColor space manually (not from the cgimage)
         // See https://developer.apple.com/forums/thread/679891
@@ -575,8 +590,8 @@ class CanvasView: UIView {
         if let ctx: CGContext = CGContext(data: nil,
                                           width: smudgeBrush.width,
                                           height: smudgeBrush.height,
-                                          bitsPerComponent: smudgeBrush.bitsPerComponent,
-                                          bytesPerRow: smudgeBrush.bytesPerRow,
+                                          bitsPerComponent: 8,
+                                          bytesPerRow: 4096, // We could pass in 0 here and let the method calculate it based on the bitPerCompoment and width arg. However if we pass in, 81*32 is less efficient thant 4096
                                           space: colorSpace!,
                                           bitmapInfo: bitmapInfo)
         {
