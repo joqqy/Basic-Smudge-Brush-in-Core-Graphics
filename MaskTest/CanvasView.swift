@@ -848,20 +848,7 @@ class CanvasView: UIView {
         self.outlineView.center = pos
         
         // Call the tool
-        switch self.toolSegmentIndex
-        {
-        case 0:
-            self.paint()
-            
-        case 1:
-            self.smudge()
-            
-        case 2:
-            self.wetBrush()
-            
-        default:
-            break
-        }
+        toolAction()
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
@@ -930,6 +917,24 @@ class CanvasView: UIView {
         }
         
         // Call the tool
+        toolAction()
+
+        // We are only drawing one segment a time, so empty the touch samples array, but keep the last point, because next segment will start from that.
+        if let last = touchSamples.last {
+            touchSamples = [last]
+        }
+    }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        self.outlineView.transform = CGAffineTransform.identity
+        self.touchSamples.removeAll()
+        self.outlineView.removeFromSuperview()
+
+    }
+    
+    private func toolAction() -> Void {
+        
+        // Call the tool
         switch self.toolSegmentIndex
         {
         case 0:
@@ -944,19 +949,8 @@ class CanvasView: UIView {
         default:
             break
         }
-
-        // We are only drawing one segment a time, so empty the touch samples array, but keep the last point, because next segment will start from that.
-        if let last = touchSamples.last {
-            touchSamples = [last]
-        }
     }
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        self.outlineView.transform = CGAffineTransform.identity
-        self.touchSamples.removeAll()
-        self.outlineView.removeFromSuperview()
-
-    }
+    
     func addSample(_ touch: UITouch) -> Void {
         
         var sample: Sample = Sample()
