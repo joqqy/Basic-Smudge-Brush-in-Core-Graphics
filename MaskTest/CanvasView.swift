@@ -18,8 +18,9 @@ struct Sample {
 class CanvasView: UIView {
     
     struct ImageNames {
-        
+                
         static let brush1: String = "brush1"
+        static let brush1_inv: String = "brush1_inv"
         static let graphite1: String = "graphitePattern"
         static let roundSoft1: String = "roundSoft1"
         static let colorBar: String = "colorbar"
@@ -534,6 +535,171 @@ class CanvasView: UIView {
         }
     }
     
+    /// Test drawing the brush intrinsic color over the smudge color
+    func createWetBrush(_ smudgeBrush: CGImage) -> CGImage? {
+
+        guard
+            let brush: CGImage = brushImage?.cgImage,
+            let size: CGSize = brushImage?.size else { return nil }
+        
+        if let ctx: CGContext = CGContext(data: nil,
+                                          width: smudgeBrush.width,
+                                          height: smudgeBrush.height,
+                                          bitsPerComponent: smudgeBrush.bitsPerComponent,
+                                          bytesPerRow: smudgeBrush.bytesPerRow,
+                                          space: smudgeBrush.colorSpace!,
+                                          bitmapInfo: smudgeBrush.bitmapInfo.rawValue) {
+            
+            ctx.saveGState()
+           
+            let rect: CGRect = CGRect(x: 0,
+                                      y: 0,
+                                      width: size.width,
+                                      height: size.height)
+            
+            ctx.draw(smudgeBrush, in: rect)
+            
+            ctx.setAlpha(0.2) // Should vary depending various factors, but deal with that later
+            ctx.draw(brush, in: rect)
+            
+            ctx.restoreGState()
+            
+            return ctx.makeImage()
+        }
+        
+        return nil
+    }
+    func wetBrush() {
+        
+        print("wetbrush")
+        
+        guard self.touchSamples.count > 0 else { return }
+        
+        let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: bounds.size)
+
+        self.image = renderer.image { context in
+            
+            // Draw current state of the image into the context
+            self.image?.draw(in: bounds)
+            
+            let ctx: CGContext = context.cgContext
+            
+            // Inside the point loop, we will continuously add rects, for a final rect encompassing all points, for the setneedsdisplay(rect) call at the end
+            
+            guard let first: Sample = touchSamples.first else { return }
+            // Start of the unionRect at the first touch position rect (then later this unionrect will be expanded as needed starting from this starting rect).
+            var unionRect: CGRect = CGRect(x: first.previousPos.x * UIScreen.main.scale,
+                                           y: first.previousPos.y * UIScreen.main.scale,
+                                           width: brushSize.width,
+                                           height: brushSize.height)
+            
+//            for touchSample in self.touchSamples {
+            
+            for i in 1 ..< self.touchSamples.count {
+                
+                let touchSample: Sample = self.touchSamples[i]
+                
+                let brushSize: CGSize = CGSize(width: brushSize.width, height: brushSize.height)
+
+                // If the mask is an image, then white areas are opaque, and black areas are transparent
+                // If the mas is a mask, white areas are transparent and black areas opaque.
+                // https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101
+                
+                //------------------------------------------------------------------------
+                // Calculate the rect we want to copy from the current context (we will use this rect for CGContext.makeImage().cropping8to: rect)
+                // The principal method is we copy the context from the previous touch pos, then copy that over to the current touch pos(later down as we draw it on the context)
+                //------------------------------------------------------------------------
+                let radiusX: CGFloat = brushSize.width/2.0
+                let radiusY: CGFloat = brushSize.height/2.0
+                let previousPos: CGPoint = CGPoint(x: touchSample.previousPos.x * UIScreen.main.scale - radiusX,
+                                                   y: touchSample.previousPos.y * UIScreen.main.scale - radiusY)
+                let copyFromContextRect: CGRect = CGRect(origin: previousPos, size: brushSize)
+                
+                //------------------------------------------------------------------------
+                // Copy an image from the current context, we get a CGImage. Crop it to desired size and location
+                //------------------------------------------------------------------------
+                
+                //let cgCopy = UIGraphicsGetImageFromCurrentImageContext()?.cgImage?.cropping(to: rect) // This fails
+                let cgCopy: CGImage? = ctx.makeImage()?.cropping(to: copyFromContextRect) // This works, copies the pixels of the current context, however, at this point, there is nothing in the context(it has been cleared!!!) how do we preserve the context???
+                
+                //------------------------------------------------------------------------
+                // Apply a mask to the copied image
+                //------------------------------------------------------------------------
+                if let cgCopy: CGImage = cgCopy,
+                   let mask: CGImage = UIImage(named: ImageNames.brush1_inv)?.cgImage,
+                   let masked: CGImage = cgCopy.masking(mask),
+                   let wetBrush = self.createWetBrush(masked) {
+                        
+                    // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
+                    // So no need to realese the mask in Swift, it is all handled by ARC
+                    
+                    
+
+
+                    //------------------------------------------------------------------------
+                    // Save the context state and all subsuquent changes
+                    //------------------------------------------------------------------------
+                    ctx.saveGState()
+                    
+                    
+                    
+                    //------------------------------------------------------------------------
+                    // Transform the coordinates of the context
+                    //------------------------------------------------------------------------
+                    // Flip the context so that the coordinates match the default coordinate system of UIKit
+                    // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/HandlingImages/Images.html#//apple_ref/doc/uid/TP40010156-CH13-SW1
+                    ctx.translateBy(x: 0, y: self.bounds.size.height)
+                    ctx.scaleBy(x: 1, y: -1)
+
+                    // Transform the context with respect to the touch position
+                    ctx.translateBy(x: touchSample.pos.x - brushSize.width/2.0,
+                                    y: self.bounds.size.height - touchSample.pos.y - brushSize.height/2.0)
+                    
+                    
+                    //------------------------------------------------------------------------
+                    // Set some drawing settings for the context
+                    //------------------------------------------------------------------------
+                    // Draw
+                    let alphaConstantFactor: CGFloat = 1.0
+                    ctx.setAlpha(touchSample.force * alphaConstantFactor)
+                    ctx.setBlendMode(.normal)
+                    //------------------------------------------------------------------------
+                    // Draw into the context
+                    //------------------------------------------------------------------------
+                    // Set size of the copied image we want to draw into the contex
+                    let rect: CGRect = CGRect(origin: .zero, size: brushSize)
+                    
+                    
+                    
+                    
+                    // Draw
+                    ctx.draw(wetBrush, in: rect)
+                    
+                    
+                    let _rect = CGRect(x: touchSample.pos.x - brushSize.width/2.0,
+                                       y: touchSample.pos.y - brushSize.height/2.0,
+                                       width: brushSize.width,
+                                       height: brushSize.height)
+                    unionRect = unionRect.union(_rect)
+                    
+                    /*
+                    ctx.setStrokeColor(UIColor.lightGray.cgColor)
+                    ctx.setLineWidth(2)
+                    ctx.addEllipse(in: rect)
+                    ctx.drawPath(using: .stroke)
+                    */
+                    
+                    //------------------------------------------------------------------------
+                    // Restore the context
+                    //------------------------------------------------------------------------
+                    ctx.restoreGState()
+                }
+            }
+            
+            self.setNeedsDisplay(unionRect)
+        }
+    }
+    
     /// We can do this as well
     /// - Parameters:
     ///     - pos: Position of the UIImageView
@@ -673,6 +839,9 @@ class CanvasView: UIView {
         case 1:
             self.smudge()
             
+        case 2:
+            self.wetBrush()
+            
         default:
             break
         }
@@ -751,6 +920,9 @@ class CanvasView: UIView {
             
         case 1:
             self.smudge()
+            
+        case 2:
+            self.wetBrush()
             
         default:
             break

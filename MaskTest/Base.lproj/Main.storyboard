@@ -21,6 +21,7 @@
                                 <segments>
                                     <segment title="Paint"/>
                                     <segment title="Smudge"/>
+                                    <segment title="Wetbrush"/>
                                 </segments>
                                 <connections>
                                     <action selector="toolAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="915-1J-vaN"/>
