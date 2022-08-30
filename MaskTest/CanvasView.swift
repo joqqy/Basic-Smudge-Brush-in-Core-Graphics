@@ -545,13 +545,37 @@ class CanvasView: UIView {
             let brush: CGImage = brushImage?.cgImage,
             let size: CGSize = brushImage?.size else { return nil }
         
+        /* Default
         if let ctx: CGContext = CGContext(data: nil,
                                           width: smudgeBrush.width,
                                           height: smudgeBrush.height,
                                           bitsPerComponent: smudgeBrush.bitsPerComponent,
                                           bytesPerRow: smudgeBrush.bytesPerRow,
                                           space: smudgeBrush.colorSpace!,
-                                          bitmapInfo: smudgeBrush.bitmapInfo.rawValue) {
+                                          bitmapInfo: smudgeBrush.bitmapInfo.rawValue)
+         */
+        
+        //debug
+        //print("smudgeBrush.colorSpace: \(smudgeBrush.colorSpace)") // Optional(<CGColorSpace 0x2812d4660> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1))
+        //print("smudgeBrush.bitmapInfo: \(smudgeBrush.bitmapInfo)") // CGBitmapInfo(rawValue: 1)
+        
+        // Example on how to create a cgColor space manually (not from the cgimage)
+        // See https://developer.apple.com/forums/thread/679891
+        // So it seems the below, is the same as the smudgeBrush colorspace and bitmapInfo data
+        let colorSpace: CGColorSpace? = CGColorSpace(name: CGColorSpace.sRGB)
+        let bitmapInfo: UInt32 = CGImageAlphaInfo.premultipliedLast.rawValue
+        //debug
+        //print("bitmapInfo: \(bitmapInfo)") // 1
+        //print("colorSpace: \(colorSpace)") // Optional(<CGColorSpace 0x282d5c420> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1))
+        
+        if let ctx: CGContext = CGContext(data: nil,
+                                          width: smudgeBrush.width,
+                                          height: smudgeBrush.height,
+                                          bitsPerComponent: smudgeBrush.bitsPerComponent,
+                                          bytesPerRow: smudgeBrush.bytesPerRow,
+                                          space: colorSpace!,
+                                          bitmapInfo: bitmapInfo)
+        {
             
             // Save state
             ctx.saveGState()
