@@ -431,8 +431,8 @@ class CanvasView: UIView {
             
             guard let first: Sample = touchSamples.first else { return }
             // Start of the unionRect at the first touch position rect (then later this unionrect will be expanded as needed starting from this starting rect).
-            var unionRect: CGRect = CGRect(x: first.previousPos.x * UIScreen.main.scale,
-                                           y: first.previousPos.y * UIScreen.main.scale,
+            var unionRect: CGRect = CGRect(x: first.previousPos.x,
+                                           y: first.previousPos.y,
                                            width: brushSize.width,
                                            height: brushSize.height)
             
