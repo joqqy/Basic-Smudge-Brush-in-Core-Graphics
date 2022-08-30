@@ -559,7 +559,7 @@ class CanvasView: UIView {
             
             ctx.draw(smudgeBrush, in: rect)
             
-            ctx.setAlpha(0.2) // Should vary depending various factors, but deal with that later
+            ctx.setAlpha(0.05) // Should vary depending various factors, but deal with that later
             ctx.draw(brush, in: rect)
             
             ctx.restoreGState()
