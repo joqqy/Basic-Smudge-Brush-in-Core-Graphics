@@ -635,7 +635,6 @@ class CanvasView: UIView {
                                            height: brushSize.height)
             
 //            for touchSample in self.touchSamples {
-            
             for i in 1 ..< self.touchSamples.count {
                 
                 let touchSample: Sample = self.touchSamples[i]
