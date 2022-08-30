@@ -52,7 +52,7 @@ class CanvasView: UIView {
     var smudgeSpacing: CGFloat = 5.0 // Should really be = 1.0, but values < ~10 are too slow on Core Graphics/Quartz. We set it to 5 here, which is too slow for production.
     var doInterpolate: Bool = true // :false, true is very slow
     
-    var brushSize: CGSize = CGSize(width: 80, height: 80)
+    var brushSize: CGSize = CGSize(width: 60, height: 60)
     
     override func didMoveToSuperview() {
 
@@ -558,10 +558,10 @@ class CanvasView: UIView {
         //debug
         //print("smudgeBrush.colorSpace: \(smudgeBrush.colorSpace)") // Optional(<CGColorSpace 0x2812d4660> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1))
         //print("smudgeBrush.bitmapInfo: \(smudgeBrush.bitmapInfo)") // CGBitmapInfo(rawValue: 1)
-        print("smudgeBrush.bitsPerComponent: \(smudgeBrush.bitsPerComponent)") // 8
-        print("smudgeBrush.bitsPerPixel: \(smudgeBrush.bitsPerPixel)") // 32
-        print("size: \(size)") // (81.0, 81.0)
-        print("smudgeBrush.bytesPerRow: \(smudgeBrush.bytesPerRow)") // 4096
+        //print("smudgeBrush.bitsPerComponent: \(smudgeBrush.bitsPerComponent)") // 8
+        //print("smudgeBrush.bitsPerPixel: \(smudgeBrush.bitsPerPixel)") // 32
+        //print("size: \(size)") // (81.0, 81.0)
+        //print("smudgeBrush.bytesPerRow: \(smudgeBrush.bytesPerRow)") // 4096, a multiple of 32
         /*
          On bytesPerRow:
          
