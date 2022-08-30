@@ -536,7 +536,7 @@ class CanvasView: UIView {
     }
     
     /// Test drawing the brush intrinsic color over the smudge color
-    func createWetBrush(_ smudgeBrush: CGImage) -> CGImage? {
+    func createWetBrush(_ smudgeBrush: CGImage, force: CGFloat = 1.0) -> CGImage? {
 
         guard
             let brush: CGImage = brushImage?.cgImage,
@@ -557,9 +557,14 @@ class CanvasView: UIView {
                                       width: size.width,
                                       height: size.height)
             
+            // First we draw the smudge color into the context
             ctx.draw(smudgeBrush, in: rect)
             
-            ctx.setAlpha(0.05) // Should vary depending various factors, but deal with that later
+            // Next we draw that user selected intrinsic brush color into the context
+            // TODO: Should vary depending various factors, but deal with that later. The alphi is a bidirectional control and this determines how much the color from the canvas blends with the intrinsic color of the brush. This should vary depending on several factors, e.g. wetness of the paint in the brush, wetness of paint lying on the canvas, user pressure and so on.
+            
+            ctx.setAlpha(0.05 * force)
+            
             ctx.draw(brush, in: rect)
             
             ctx.restoreGState()
@@ -628,7 +633,7 @@ class CanvasView: UIView {
                 if let cgCopy: CGImage = cgCopy,
                    let mask: CGImage = UIImage(named: ImageNames.brush1_inv)?.cgImage,
                    let masked: CGImage = cgCopy.masking(mask),
-                   let wetBrush = self.createWetBrush(masked) {
+                   let wetBrush = self.createWetBrush(masked, force: touchSample.force) {
                         
                     // Note that in Swift, CGImageRelease is deprecated and ARC is now managing it
                     // So no need to realese the mask in Swift, it is all handled by ARC
