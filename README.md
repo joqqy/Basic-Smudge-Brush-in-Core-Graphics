@@ -14,7 +14,7 @@ To implement a production code, you would use the same basic logic (there are no
 
 ### **Wet brush**
 
-Wet brush is related to the smudge brush, with the main difference that the wet brush also hold an intrinsic color, that blends bidirectionally with paint lying on the canvas
+Wet brush is related to the smudge brush, with the main difference that the wet brush also hold an intrinsic color, that blends bidirectionally with paint lying on the canvas. That is, the brush picks up color from the canvas, as well as depositing paint. At any one time, the direction of paint transfir can only flow in one direction, but over of time, this flow is bidirectional.
 
 <img src="images/screenshot3.PNG" width="350"/>
 <img src="images/screenshot_wet.PNG" width="350"/>
