@@ -624,7 +624,7 @@ class CanvasView: UIView {
                     let im: UIImage = UIImage(cgImage: cg)
                     self.brushImage = im
                 }
-                
+         
                 return cg
             }
         }
