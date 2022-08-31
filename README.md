@@ -18,7 +18,7 @@ The example uses a UIImage as a back buffer to draw into. The UIImage then draws
 
 # **Discussion**
 
-To implement a production code, you would use the same basic logic (there are no rules, just do whatever fits your needs), but implement it in *Metal* (or any other framework that takes advantage of the GPU). *Core Graphics* works on the CPU, then pushes to the GPU, and will thus not utilize the full potential of the GPU hardware. *Core Image*, while GPU based, is not geared toward 60+ FPS drawing and will bottleneck, worse than *Core Graphics*(At least with my experience). Ideally, you should explore *Metal*. But that will unfortunately add alot of complexity to your code. But you gain speed and fine granular control.
+To implement a production code, you would use the same basic logic (there are no rules, just do whatever fits your needs), but implement it in *Metal* (or any other framework that takes advantage of the GPU). *Core Graphics* works on the CPU, then pushes to the GPU, and will thus not utilize the full potential of the GPU hardware. *Core Image*, while GPU based, is not geared toward 60+ FPS drawing and will bottleneck, worse than *Core Graphics*(At least with my experience, even if set up with a *Metal* device). Ideally, you should explore *Metal*. But that will unfortunately add alot of complexity to your code. But you gain speed and fine granular control.
 
 <img src="images/screenshot3.PNG" width="350"/>
 <img src="images/screenshot_wet.PNG" width="350"/>
