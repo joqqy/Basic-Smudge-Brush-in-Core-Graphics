@@ -1,4 +1,4 @@
-# Simple implementation on how to do "smudge" and "wetbrush" etc. in Core Graphics.
+# Simple implementation of "smudge" and "wetbrush" etc. in Core Graphics.
 
 ## NOTE: this is not very performant, it simply illustrates the logic that goes into implementing a smudge brush. This is a test suite made for later implementation in Metal.
 
