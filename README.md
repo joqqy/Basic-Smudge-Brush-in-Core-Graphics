@@ -10,7 +10,7 @@ The example uses a UIImage as a back buffer to draw into. The UIImage then draws
 
 - For each previous touch pos, we copy a Region Of Interest(ROI), determined by the size of the current brush, from the current CGContext. We mask the copy and then draw it into the current context with appropriate settings, most notably an appropriate alpha setting. Thus the UIImage gets updated.
 
-- The updated UIImage then draws itself into the backing layer to reflect each incremental change.
+- The updated UIImage then draws itself into the view's backing layer to reflect each incremental change.
 
 To implement a production code, you would use the same basic logic (there are no rules, just do whatever fits your needs), but implement it in Metal (or any other framework that takes advantage of the GPU).
 
