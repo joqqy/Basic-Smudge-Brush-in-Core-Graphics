@@ -14,7 +14,7 @@ The example uses a UIImage as a back buffer to draw into. The UIImage then draws
 
 ### **Wet brush**
 
-- Wet brush is related to the smudge brush, with the main difference that the wet brush also holds an intrinsic paint volume, that blends bidirectionally with paint lying on the canvas. That is, the brush picks up color from the canvas, as well as depositing paint. At any one time, the direction of paint transfer can only flow in one direction, but over of time, this flow is bidirectional.
+- Wet brush is related to the smudge brush, with the main difference that the wet brush also holds an intrinsic color and paint volume, that blends bidirectionally with paint lying on the canvas. That is, the brush picks up color from the canvas, as well as depositing paint. At any one time, the direction of paint transfer can only flow in one direction, but over of time, this flow is bidirectional.
 
 # **Discussion**
 
