@@ -8,7 +8,7 @@ The example uses a UIImage as a back buffer to draw into. The UIImage then draws
 
 - Before each touch, the UIImage draws itself into the current image context.
 
-- For each previous touch pos, we copy a Region Of Interest(ROI), determined by the size of the current brush, from the current CGContext. We mask the copy and then draw it into the current context with appropriate settings, most notably an appropriate alpha setting. Thus the UIImage gets updated.
+- For each previous touch position, we copy a Region Of Interest(ROI), determined by the size of the current brush, from the current CGContext. We mask the copy and then draw it into the current context at the current touch position with appropriate settings, most notably an appropriate alpha setting. Thus the UIImage gets updated.
 
 - The updated UIImage then draws itself into the view's backing layer to reflect each incremental change.
 
