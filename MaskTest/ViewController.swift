@@ -26,6 +26,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+        self.title = "Smudge and Wet brush in Core Graphics"
+        
         let canvasSize: CGSize = CGSize(width: 512.0, height: 512.0)
         let origin: CGPoint = CGPoint(x: self.view.center.x - canvasSize.width/2,
                                       y: self.view.center.y - canvasSize.height/2 + 50)
