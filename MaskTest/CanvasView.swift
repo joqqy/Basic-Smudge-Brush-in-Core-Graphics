@@ -35,12 +35,12 @@ class CanvasView: UIView {
     }
     
     /// Will receive continues pixel data from CanvasView backing layer
-    var imageView: UIImageView!
+//    var imageView: UIImageView!
     var outlineView: UIImageView!
     var currentImageName: String = ImageNames.colorBar
     
     /// We draw into this and then this draws itself into the backing layer
-    var image: UIImage?
+    var canvas: UIImage?
     var brushImage: UIImage?
     var brushColorCanGetDirty: Bool = true
     
@@ -64,7 +64,7 @@ class CanvasView: UIView {
         //layer.setNeedsDisplay() // This calls the draw(in) layer, and draws whatever is implemented there
         
         // Starting painting image
-        self.image = UIImage(named: currentImageName)
+        self.canvas = UIImage(named: currentImageName)
         
         // Brush image for painting tool
         self.brushImage = UIImage(named: ImageNames.brush1)?.withRenderingMode(.alwaysTemplate)
@@ -122,7 +122,7 @@ class CanvasView: UIView {
     /// On double tap, restore the image
     @objc func restoreImage() {
         
-        self.image = UIImage(named: currentImageName)
+        self.canvas = UIImage(named: currentImageName)
         self.touchSamples.removeAll()
         self.setNeedsDisplay()
     }
@@ -318,9 +318,12 @@ class CanvasView: UIView {
     /// So the uiimage drawingImage serves as our backbuffer.
     /// UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
     override func draw(_ rect: CGRect) {
+        
+        // At this point, we have drawn our brush strokes into the uiimage
+        // So we want to draw it into the view's layer
 
         // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is call UIImage.draw(in: rect).
-        self.image?.draw(in: rect)
+        self.canvas?.draw(in: rect)
     }
     
     func paint() {
@@ -329,10 +332,11 @@ class CanvasView: UIView {
         
         let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: bounds.size)
 
-        self.image = renderer.image { context in
+        self.canvas = renderer.image { context in
             
-            // Draw current state of the image into the context
-            self.image?.draw(in: bounds)
+            // Draw current state of the image into the context, because UIKit/CoreGraphics clears the context before drawing.
+            // So we need to draw the latest canvas into the context to draw over.
+            self.canvas?.draw(in: bounds)
             
             let ctx: CGContext = context.cgContext
             
@@ -420,10 +424,11 @@ class CanvasView: UIView {
         
         let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: bounds.size)
 
-        self.image = renderer.image { context in
+        self.canvas = renderer.image { context in
             
-            // Draw current state of the image into the context
-            self.image?.draw(in: bounds)
+            // Draw current state of the image into the context, because UIKit/CoreGraphics clears the context before drawing.
+            // So we need to draw the latest canvas into the context to draw over.
+            self.canvas?.draw(in: bounds)
             
             let ctx: CGContext = context.cgContext
             
@@ -637,10 +642,11 @@ class CanvasView: UIView {
         
         let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: bounds.size)
 
-        self.image = renderer.image { context in
+        self.canvas = renderer.image { context in
             
-            // Draw current state of the image into the context
-            self.image?.draw(in: bounds)
+            // Draw current state of the image into the context, because UIKit/CoreGraphics clears the context before drawing.
+            // So we need to draw the latest canvas into the context to draw over.
+            self.canvas?.draw(in: bounds)
             
             let ctx: CGContext = context.cgContext
             
@@ -764,8 +770,8 @@ class CanvasView: UIView {
     ///     - pos: Position of the UIImageView
     func drawMask(at pos: CGPoint) {
         
-        if let cg: CGImage = self.image?.cgImage,
-           let size: CGSize = self.image?.size {
+        if let cg: CGImage = self.canvas?.cgImage,
+           let size: CGSize = self.canvas?.size {
             
             let renderer: UIGraphicsImageRenderer = UIGraphicsImageRenderer(size: size)
             
@@ -796,9 +802,9 @@ class CanvasView: UIView {
                 }
             }
             
-            self.image = img
+            self.canvas = img
             
-            let view: UIImageView = UIImageView(image: self.image)
+            let view: UIImageView = UIImageView(image: self.canvas)
             view.tag = 0xDEADBEEF
             view.center = pos
             
@@ -813,8 +819,8 @@ class CanvasView: UIView {
     ///     - pos: Position of the UIImageView
     func drawMask_With_CIImage(at pos: CGPoint) {
         
-        if let cg: CGImage = self.image?.cgImage,
-           let size: CGSize = self.image?.size {
+        if let cg: CGImage = self.canvas?.cgImage,
+           let size: CGSize = self.canvas?.size {
             
             // Create a brush CIFilter radial gradient, we will use this as a mask
             let brushFilter: CIFilter? = CIFilter(name: "CIRadialGradient",
@@ -861,9 +867,9 @@ class CanvasView: UIView {
                 }
             }
             
-            self.image = img
+            self.canvas = img
             
-            let view: UIImageView = UIImageView(image: self.image)
+            let view: UIImageView = UIImageView(image: self.canvas)
             view.tag = 0xDEADBEEF
             view.center = pos
             
@@ -1010,6 +1016,7 @@ class CanvasView: UIView {
     }
 }
 
+/*
 extension CanvasView {
     
     func drawCheckerBoard() {
@@ -1034,3 +1041,4 @@ extension CanvasView {
         self.addSubview(self.imageView)
     }
 }
+*/
