@@ -319,7 +319,7 @@ class CanvasView: UIView {
     /// UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
     override func draw(_ rect: CGRect) {
 
-        // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is calle UIImage.draw(in: rect).
+        // UIImages knows how to draw themselves into the context, which is quite convenient. All we have to do is call UIImage.draw(in: rect).
         self.image?.draw(in: rect)
     }
     
